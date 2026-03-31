@@ -19,6 +19,22 @@ const LeaveApplyForm = ({ remainingBalance = 15 }) => {
         // 반차 계열은 무조건 0.5일 (설계서 3.5.3 반영)
         if (leaveType.includes('HALF')) return 0.5;
 
+        // 1. 2026년 공휴일 리스트 (사용자가 직접 관리)
+    // 날짜 포맷을 'YYYY-MM-DD'로 통일해서 넣어주세요.
+        const holidays = [
+            '2026-01-01', // 신정
+            '2026-02-16', '2026-02-17', '2026-02-18', // 설날 연휴
+            '2026-03-01', // 삼일절
+            '2026-05-05', // 어린이날
+            '2026-05-24', // 부처님 오신 날
+            '2026-06-06', // 현충일
+            '2026-08-15', // 광복절
+            '2026-09-24', '2026-09-25', '2026-09-26', // 추석 연휴
+            '2026-10-03', // 개천절
+            '2026-10-09', // 한글날
+            '2026-12-25', // 성탄절
+        ];
+
         let start = new Date(startDate);
         let end = new Date(endDate);
         let count = 0;
@@ -27,7 +43,12 @@ const LeaveApplyForm = ({ remainingBalance = 15 }) => {
         const current = new Date(start);
         while (current <= end) {
             const day = current.getDay();
-            if (day !== 0 && day !== 6) { // 0: 일요일, 6: 토요일 제외
+            const dateString = current.toISOString().split('T')[0];
+
+            const isWeekend = (day === 0 || day === 6); // 0: 일요일, 6: 토요일 제외
+            const isHoliday = holidays.includes(dateString);
+
+            if (!isWeekend && !isHoliday) { // 공휴일과 주말 제외 
                 count++;
             }
             current.setDate(current.getDate() + 1);
