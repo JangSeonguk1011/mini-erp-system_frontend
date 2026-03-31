@@ -1,0 +1,47 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "userId": "user01",
+      "name": "장성욱",
+      "email": "test@test.com",
+      "password": "password123",
+      "role": "USER",
+      "department": "개발팀",
+      "position": "사원"
+    },
+    {
+      "id": "2",
+      "userId": "admin",
+      "name": "관리자",
+      "email": "admin@test.com",
+      "password": "admin123",
+      "role": "ADMIN",
+      "department": "운영팀",
+      "position": "팀장"
+    },
+    {
+      "userId": "qwe123",
+      "name": "도라에몽",
+      "email": "qwe123@gmail.com",
+      "password": "aaaa1234",
+      "position": "사원",
+      "department": "개발팀",
+      "id": "6bkQSvq8eP4"
+    },
+    {
+      "userId": "abc123",
+      "name": "장성욱",
+      "email": "jso2961@naver.com",
+      "password": "qwer1234",
+      "position": "대리",
+      "department": "ㅇㅇㅇㅇㅇ",
+      "id": "syk5YwXUxJA"
+    }
+  ],
+  "auth": {
+    "accessToken": "mock-jwt-token-abc-123",
+    "message": "로그인에 성공했습니다."
+  },
+  "$schema": "./node_modules/json-server/schema.json"
+}
