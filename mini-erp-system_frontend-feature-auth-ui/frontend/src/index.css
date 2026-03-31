@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Tailwind v4에서는 여기서 직접 설정을 확장합니다. */
+@theme {
+  --color-primary: #2563eb;
+  --font-sans: "Pretendard", "Inter", system-ui, sans-serif;
+}
+
+/* 아래는 브라우저 기본 스타일 초기화 (시안처럼 깔끔하게 나오게 함) */
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900;
+  }
+}
