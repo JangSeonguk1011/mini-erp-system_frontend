@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, User, Lock, CheckCircle2, Eye, EyeOff, ShieldCheck, Key } from 'lucide-react';
 import axios from '@/api/axios';
 
@@ -7,12 +7,26 @@ const ProfilePage = ({ isOpen, onClose, user }) => {
   const [mode, setMode] = useState('profile');
   const [step, setStep] = useState(1); // 1:인증번호발송, 2:인증번호입력, 3:새비번, 4:완료
   const [showPw, setShowPw] = useState(false);
-  
   const [formData, setFormData] = useState({
     authCode: '',
     newPassword: '',
     confirmPassword: ''
   });
+// [추가] 실시간 잔여 연차 상태 및 계산 로직
+  const [remainingBalance, setRemainingBalance] = useState(15);
+
+  useEffect(() => {
+    if (isOpen) {
+      const savedData = localStorage.getItem('leaveHistory');
+      if (savedData) {
+        const history = JSON.parse(savedData);
+        const approvedDays = history
+          .filter(item => item.status === '승인')
+          .reduce((acc, cur) => acc + Number(cur.usedDays), 0);
+        setRemainingBalance(15 - approvedDays);
+      }
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -86,7 +100,8 @@ const ProfilePage = ({ isOpen, onClose, user }) => {
               <InfoItem label="아이디" value={user?.userId} />
               <InfoItem label="이메일" value={user?.email} />
               <InfoItem label="부서" value={user?.department} />
-              <InfoItem label="잔여 연차" value="9.5일" highlight />
+              {/* [수정] 고정값 "9.5일"을 아래와 같이 변수로 교체 */}
+              <InfoItem label="잔여 연차" value={`${remainingBalance.toFixed(1)}일`} highlight />
             </div>
             <div className="flex gap-2 p-6 pt-0">
               <button onClick={handleClose} className="flex-1 py-3.5 bg-gray-100 text-gray-600 font-bold rounded-xl text-sm">닫기</button>

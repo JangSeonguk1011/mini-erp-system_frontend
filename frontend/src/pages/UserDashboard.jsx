@@ -15,6 +15,8 @@ import {
 // 2. 캘린더 컴포넌트 임포트 (파일 경로를 확인해주세요!)
 import CalendarPage from './CalendarPage'; 
 import ProfilePage from './ProfilePage'; // ProfilePage 임포트
+import LeaveApplyPage from './LeaveApplyPage';   // 추가
+import LeaveHistoryPage from './LeaveHistoryPage'; // 추가
 
 const UserDashboard = () => {
   const { user, logout } = useAuthStore();
@@ -35,7 +37,12 @@ const UserDashboard = () => {
       case 'dashboard':
         return <DashboardHome user={user} />;
       case 'calendar':
-        return <CalendarPage />; // 캘린더 메뉴 클릭 시 표시
+      // [수정] 캘린더 페이지에 메뉴 전환 함수 전달
+      return <CalendarPage onNavigateToApply={() => setActiveMenu('leave-apply')} />;
+    case 'leave-apply':
+      return <LeaveApplyPage onNavigateToHistory={() => setActiveMenu('leave-history')} />;
+    case 'leave-history':
+      return <LeaveHistoryPage onNavigateToApply={() => setActiveMenu('leave-apply')} />;
       default:
         return (
           <div className="flex items-center justify-center h-64 text-gray-400 italic">

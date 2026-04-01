@@ -4,32 +4,40 @@ import SignupPage from './pages/SignupPage';
 import FindIdPage from './pages/FindIdPage'; 
 import FindPwPage from './pages/FindPwPage';
 
-// [추가] 새로 제작한 대시보드 페이지들을 불러옵니다.
-// 파일명과 경로가 실제 프로젝트와 일치하는지 꼭 확인하세요!
+// [기존] 대시보드 페이지
 import AdminDashboard from './pages/AdminDashboard';
 import UserDashboard from './pages/UserDashboard';
+
+// [추가] 연차 관련 페이지 불러오기
+import LeaveHistoryPage from './pages/LeaveHistoryPage'; // 신청 내역 페이지
+import LeaveApplyPage from './pages/LeaveApplyPage';     // 연차 신청 페이지
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Navigate to="/login" />} />
-       
+        
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/find-id" element={<FindIdPage />} />
         <Route path="/find-pw" element={<FindPwPage />} />
         
-        {/* [추가] 로그인 후 이동할 대시보드 경로를 설정 */}
-        
-        {/* 일반 사용자 대시보드: LoginPage에서 navigate('/dashboard') 시 연결됨 */}
+        {/* 일반 사용자 대시보드 */}
         <Route path="/dashboard" element={<UserDashboard />} />
         
-        {/* 관리자 대시보드: LoginPage에서 navigate('/admin/dashboard') 시 연결됨 */}
+        {/* 관리자 대시보드 */}
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
 
-        {/* (선택사항)없는 주소로 들어왔을 때 처리 - 404 페이지 대신 로그인으로 이동
-        <Route path="*" element={<Navigate to="/login" />} /> */}
+        {/* [추가] 연차 관리 시스템 경로 설정 */}
+        {/* 연차 신청 내역 (표가 있는 페이지) */}
+        <Route path="/leaves" element={<LeaveHistoryPage />} />
+        
+        {/* 연차 신청 폼 (날짜 선택하고 신청하는 페이지) */}
+        <Route path="/leaves/new" element={<LeaveApplyPage />} />
+
+        {/* (선택사항)없는 주소로 들어왔을 때 처리 */}
+        <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </BrowserRouter>
   );

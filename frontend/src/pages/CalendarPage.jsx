@@ -5,7 +5,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import axios from '../api/axios'; 
 import { Clock, Calendar as CalIcon, Coffee, Plus, Search, CalendarDays } from 'lucide-react';
 
-const CalendarPage = () => {
+const CalendarPage = ({ onNavigateToApply }) => {
   // --- [v2.0 설계서 기반 상태 변수명 및 데이터 구조] ---
   const [events, setEvents] = useState([]);
   const [originalLeaveRequests, setOriginalLeaveRequests] = useState([]); // 필터링 전 원본 데이터 보관용
@@ -126,6 +126,13 @@ const CalendarPage = () => {
     }
   };
 
+  // 2. 버튼 클릭 시 실행될 핸들러 추가
+  const handleGoToApply = () => {
+    if (onNavigateToApply) {
+      onNavigateToApply(); // 부모(UserDashboard)의 activeMenu를 'leave-apply'로 변경
+    }
+  };
+
   return (
     <div className="p-8 space-y-8 bg-slate-50 min-h-screen font-sans text-slate-900">
       
@@ -195,7 +202,12 @@ const CalendarPage = () => {
             </div>
             <button onClick={handleSearch} className="bg-slate-800 text-white px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 hover:bg-black transition-all"><Search size={14} /> 검색</button>
             <button onClick={handleReset} className="bg-slate-200 text-slate-600 px-4 py-2.5 rounded-xl font-bold text-xs hover:bg-slate-300 transition-all">전체보기</button>
-            <button className="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 hover:bg-blue-700 transition-all shadow-lg shadow-blue-100"><Plus size={16} /> 연차 신청</button>
+            <button 
+              onClick={handleGoToApply} 
+              className="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 hover:bg-blue-700 transition-all shadow-lg shadow-blue-100"
+            >
+              <Plus size={16} /> 연차 신청
+            </button>
           </div>
         </div>
 
