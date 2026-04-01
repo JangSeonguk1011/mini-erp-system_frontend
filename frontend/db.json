@@ -9,9 +9,7 @@
       "role": "USER",
       "department": "개발팀",
       "positionName": "사원",
-      "totalAnnualLeave": 11,
-      "usedAnnualLeave": 3,
-      "remainingAnnualLeave": 8
+      "totalAnnualLeave": 11
     },
     {
       "id": "2",
@@ -30,7 +28,8 @@
       "password": "aaaa1234",
       "positionName": "사원",
       "department": "개발팀",
-      "id": "6bkQSvq8eP4"
+      "id": "6bkQSvq8eP4",
+      "totalAnnualLeave": 11
     },
     {
       "userId": "abc123",
@@ -39,7 +38,8 @@
       "password": "qwer1234",
       "positionName": "대리",
       "department": "ㅇㅇㅇㅇㅇ",
-      "id": "syk5YwXUxJA"
+      "id": "syk5YwXUxJA",
+      "totalAnnualLeave": 15
     }
   ],
   "auth": {

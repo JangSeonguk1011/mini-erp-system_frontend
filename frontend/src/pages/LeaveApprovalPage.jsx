@@ -1,20 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../store/authStore';
 import api from '../api/axios';
 import { 
-  Layout, 
+  Bell,     
+  X, 
   CheckCircle, 
-  LogOut, 
-  Bell, 
-  Settings, 
-  Users, 
-  FolderKanban,
-  X
+  Calendar, 
+  Layout 
 } from 'lucide-react';
 
 const LeaveApprovalPage = () => {
-  const { user, logout } = useAuthStore();
   const navigate = useNavigate();
 
   // 1. 데이터 리스트 
@@ -42,15 +37,10 @@ const LeaveApprovalPage = () => {
   const rejectedCount = requests.filter(r => r.status === '반려' || r.status === 'REJECT').length;
   const thisWeekCount = approvedCount;
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
-
   // [승인] 처리
   const handleApprove = async (id) => {
     try {
-        await api.patch(`/leaves/${id}`, { status: 'APPROVED' }); // ✅ 서버 데이터 업데이트
+        await api.patch(`/leaves/${id}`, { status: 'APPROVED' }); // 서버 데이터 업데이트
         setRequests(requests.map(req => 
             req.id === id ? { ...req, status: 'APPROVED' } : req
         ));
@@ -111,59 +101,13 @@ const LeaveApprovalPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <aside className="w-64 bg-white border-r border-gray-100 flex flex-col p-6 fixed h-full shadow-sm">
-        <div className="flex items-center gap-2 text-blue-900 font-bold text-lg mb-8 cursor-pointer" onClick={() => navigate('/admin/dashboard')}>
-          <div className="w-8 h-8 bg-blue-900 rounded flex items-center justify-center text-white text-xs font-serif">W</div>
-          WorkFlow <span className="text-[10px] font-normal text-gray-400 ml-1">(관리자)</span>
-        </div>
-
-        <div className="flex items-center gap-3 mb-10 px-2">
-          <div className="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center text-white font-bold shadow-sm">
-            {user?.userName?.charAt(0) || '관'}
-          </div>
-          <div>
-            <p className="text-sm font-bold text-gray-800">{user?.userName || '관리자'}</p>
-            <p className="text-[11px] text-gray-400 font-medium">시스템 관리자</p>
-          </div>
-        </div>
-
-        <nav className="flex-1 space-y-6">
-          <div>
-            <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-4 px-2 font-bold">관리 메뉴</p>
-            <div className="space-y-1">
-              <AdminNavItem icon={<Layout size={18}/>} label="관리자 대시보드" active={false} onClick={() => navigate('/admin/dashboard')} />
-              <AdminNavItem icon={<Settings size={18}/>} label="권한 부여" />
-              <AdminNavItem icon={<Users size={18}/>} label="업무 배정" badge="3" />
-              <AdminNavItem icon={<CheckCircle size={18}/>} label="연차 승인" badge={pendingCount.toString()} active={true} onClick={() => navigate('/admin/approvals')} />
-            </div>
-          </div>
-          <div>
-            <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-4 px-2 font-bold">프로젝트 정보</p>
-                <AdminNavItem icon={<FolderKanban size={18}/>} label="프로젝트 관리" isFolder />
-            </div>
-        </nav>
-
-        <button onClick={handleLogout} className="flex items-center gap-2 text-orange-600 font-bold p-2.5 hover:bg-orange-50 rounded-lg mt-auto group">
-          <LogOut size={18} className="group-hover:-translate-x-1 transition-transform" /> 
-          <span className="text-sm">로그아웃</span>
-        </button>
-      </aside>
-
-      <main className="flex-1 ml-64 p-8">
-        <header className="flex justify-between items-center mb-10">
+    <div className="animate-fadeIn p-6 bg-gray-50/30 min-h-screen">
+        <header className="mb-8">
           <div>
             <h2 className="text-2xl font-bold text-gray-800 tracking-tight">연차 승인 / 반려</h2>
             <p className="text-sm text-gray-400 mt-1">사원들의 신청 내역을 검토하고 처리 결과를 반영합니다.</p>
           </div>
           <div className="flex items-center gap-4">
-            <div className="relative p-2 text-gray-400 hover:bg-gray-100 rounded-full cursor-pointer transition-colors">
-              <Bell size={20} />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-emerald-500 rounded-full border-2 border-white"></span>
-            </div>
-            <div className="w-8 h-8 bg-emerald-600 text-white rounded-full flex items-center justify-center text-xs font-bold border-2 border-emerald-100 shadow-sm">
-              관
-            </div>
           </div>
         </header>
 
@@ -229,7 +173,7 @@ const LeaveApprovalPage = () => {
             </tbody>
           </table>
         </section>
-      </main>
+
       {/* --- 반려 사유 입력 모달 --- */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">

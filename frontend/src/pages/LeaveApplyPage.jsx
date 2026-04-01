@@ -9,6 +9,7 @@ const LeaveApplyPage = () => {
   const { user } = useAuthStore(); // 현재 로그인한 사용자 정보
   const [dbUser, setDbUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [usedDays, setUsedDays] = useState(0);
 
   // 1. 서버(db.json)에서 이 사용자의 최신 정보를 가져옵니다.
   useEffect(() => {
@@ -20,6 +21,15 @@ const LeaveApplyPage = () => {
         if (response.data.length > 0) {
           setDbUser(response.data[0]); // 첫 번째 검색 결과 저장
         }
+
+        // '승인'된 연차들만 더하기
+        const leavesRes = await api.get(`/leaves?userId=${user.userId}`);
+        const approvedTotal = leavesRes.data
+          .filter(item => item.status === '승인' || item.status === 'APPROVED')
+          .reduce((acc, cur) => acc + Number(cur.usedDays || 0), 0);
+
+        setUsedDays(approvedTotal);
+
       } catch (error) {
         console.error("유저 정보 로딩 실패:", error);
       } finally {
@@ -30,8 +40,9 @@ const LeaveApplyPage = () => {
     fetchUserData();
   }, [user]);
 
-  // 관리자가 승인해서 바뀐 '진짜 잔여 연차'
-  const remainingBalance = dbUser?.remainingAnnualLeave || 0;
+  // 관리자가 승인해서 바뀐 '잔여 연차'
+  const totalAnnualLeave = dbUser?.totalAnnualLeave || 0;
+  const remainingBalance = totalAnnualLeave - usedDays;
 
   return (
     <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '30px' }}>
@@ -47,8 +58,7 @@ const LeaveApplyPage = () => {
         {/* LeaveBalanceCard 내부에서도 자체적으로 계산하지만, 
             필요시 remainingBalance를 props로 넘길 수도 있습니다. */}
         <LeaveBalanceCard totalAnnualLeave={dbUser?.totalAnnualLeave} 
-          usedAnnualLeave={dbUser?.usedAnnualLeave} 
-          remainingAnnualLeave={dbUser?.remainingAnnualLeave} />
+           usedAnnualLeave={usedDays} remainingAnnualLeave={remainingBalance}/>
       </div>
 
       {/* 2. 하단 2단 레이아웃 (신청 폼 + 정책 표) */}

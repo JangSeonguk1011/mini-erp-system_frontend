@@ -1,51 +1,106 @@
+import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import LoginPage from './pages/LoginPage';
-import SignupPage from './pages/SignupPage';
-import FindIdPage from './pages/FindIdPage'; 
-import FindPwPage from './pages/FindPwPage';
+import { useAuthStore } from './store/authStore';
 
-// [기존] 대시보드 페이지
+// 레이아웃 및 공통 컴포넌트
+import AdminLayout from './components/AdminLayout';
+
+// 기존 페이지 호출
 import AdminDashboard from './pages/AdminDashboard';
 import UserDashboard from './pages/UserDashboard';
-import ProjectPage from './pages/ProjectPage';
+import LoginPage from './pages/LoginPage'; 
+import TaskCreate from './pages/TaskCreate';
+import TaskEdit from './pages/TaskEdit';
+import ProjectManagement from './pages/ProjectManagement';
+import AdminProjectAuth from './pages/AdminProjectAuth';
+import ProjectPage from './pages/ProjectPage'; 
 
-// [추가] 연차 관련 페이지 불러오기
-import LeaveHistoryPage from './pages/LeaveHistoryPage'; // 신청 내역 페이지
-import LeaveApplyPage from './pages/LeaveApplyPage';     // 연차 신청 페이지
-import LeaveApprovalPage from './pages/LeaveApprovalPage';
+// 연차 관련 페이지 호출
+import LeaveHistoryPage from './pages/LeaveHistoryPage';   
+import LeaveApplyPage from './pages/LeaveApplyPage';       
+import LeaveApprovalPage from './pages/LeaveApprovalPage'; 
+
+/**
+ * 권한 보호 컴포넌트 (ProtectedRoute)
+ */
+const ProtectedRoute = ({ children, requiredRole }) => {
+  const { isAuthenticated, user } = useAuthStore();
+  
+  // 1. 로그인 여부 확인
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // 2. 권한 확인: 요구되는 권한이 있는데 유저 권한과 다를 경우
+  if (requiredRole && user?.role !== requiredRole) {
+    // 권한이 없으면 각자의 메인 페이지로 보냄
+    return <Navigate to={user?.role === 'ADMIN' ? '/admin/dashboard' : '/user/dashboard'} replace />;
+  }
+
+  return children;
+};
 
 function App() {
+  const { isAuthenticated, user } = useAuthStore();
+
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/login" />} />
-        
+        {/* ============================================================
+           1. 관리자 영역 (Role: ADMIN) 
+        ============================================================ */}
+        <Route 
+          path="/admin" 
+          element={
+            <ProtectedRoute requiredRole="ADMIN">
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="project-auth" element={<AdminProjectAuth />} />
+          <Route path="task-create" element={<TaskCreate />} />
+          <Route path="task-edit" element={<TaskEdit />} />
+          <Route path="projects" element={<ProjectManagement />} />
+          <Route path="approvals" element={<LeaveApprovalPage />} />
+        </Route>
+
+        {/* ============================================================
+           2. 일반 사용자 영역 (Role: USER) 
+        ============================================================ */}
+        <Route 
+          path="/user" 
+          element={
+            <ProtectedRoute requiredRole="USER">
+              <UserDashboard /> 
+            </ProtectedRoute>
+          }
+        >
+          <Route path="dashboard" element={<UserDashboard />} />
+        </Route>
+
+        {/* 사용자용 프로젝트 및 연차 페이지 */}
+        <Route path="/project-page" element={<ProtectedRoute requiredRole="USER"><ProjectPage /></ProtectedRoute>} />
+        <Route path="/leaves" element={<ProtectedRoute requiredRole="USER"><LeaveHistoryPage /></ProtectedRoute>} />
+        <Route path="/leaves/new" element={<ProtectedRoute requiredRole="USER"><LeaveApplyPage /></ProtectedRoute>} />
+
+        {/* ============================================================
+           3. 공통 영역 (로그인 및 리다이렉트) 
+        ============================================================ */}
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
-        <Route path="/find-id" element={<FindIdPage />} />
-        <Route path="/find-pw" element={<FindPwPage />} />
         
-        {/* 일반 사용자 대시보드 */}
-        <Route path="/dashboard" element={<UserDashboard />} />
-        
-        {/* 관리자 대시보드 */}
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route 
+          path="/" 
+          element={
+            isAuthenticated 
+              ? (user?.role === 'ADMIN' ? <Navigate to="/admin/dashboard" /> : <Navigate to="/user/dashboard" />)
+              : <Navigate to="/login" />
+          } 
+        />
 
-        {/* [추가] 연차 관리 시스템 경로 설정 */}
-        {/* 연차 신청 내역 (표가 있는 페이지) */}
-        <Route path="/leaves" element={<LeaveHistoryPage />} />
-        
-        {/* 연차 신청 폼 (날짜 선택하고 신청하는 페이지) */}
-        <Route path="/leaves/new" element={<LeaveApplyPage />} />
-
-        {/* /admin/approvals 주소일 때 */}
-        <Route path="/admin/approvals" element={<LeaveApprovalPage />} />
-
-        {/* (선택사항)없는 주소로 들어왔을 때 처리 */}
-        <Route path="*" element={<Navigate to="/login" />} />
-
-        {/* 프로젝트 폼*/}
-        <Route path="/project-page" element={<ProjectPage />} />
+        {/* 잘못된 경로는 다시 루트로 */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );
