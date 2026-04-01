@@ -17,6 +17,8 @@ import CalendarPage from './CalendarPage';
 import ProfilePage from './ProfilePage'; // ProfilePage 임포트
 import LeaveApplyPage from './LeaveApplyPage';   // 추가
 import LeaveHistoryPage from './LeaveHistoryPage'; // 추가
+import ProjectPage from './ProjectPage'; // 파일명이 ProjectPage.jsx인지 확인!
+
 
 const UserDashboard = () => {
   const { user, logout } = useAuthStore();
@@ -36,6 +38,8 @@ const UserDashboard = () => {
     switch (activeMenu) {
       case 'dashboard':
         return <DashboardHome user={user} />;
+       case 'projects':
+         return <ProjectPage />;
       case 'calendar':
       // [수정] 캘린더 페이지에 메뉴 전환 함수 전달
       return <CalendarPage onNavigateToApply={() => setActiveMenu('leave-apply')} />;

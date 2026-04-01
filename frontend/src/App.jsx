@@ -7,6 +7,7 @@ import FindPwPage from './pages/FindPwPage';
 // [기존] 대시보드 페이지
 import AdminDashboard from './pages/AdminDashboard';
 import UserDashboard from './pages/UserDashboard';
+import ProjectPage from './pages/ProjectPage';
 
 // [추가] 연차 관련 페이지 불러오기
 import LeaveHistoryPage from './pages/LeaveHistoryPage'; // 신청 내역 페이지
@@ -38,6 +39,9 @@ function App() {
 
         {/* (선택사항)없는 주소로 들어왔을 때 처리 */}
         <Route path="*" element={<Navigate to="/login" />} />
+
+        {/* 프로젝트 폼*/}
+        <Route path="/project-page" element={<ProjectPage />} />
       </Routes>
     </BrowserRouter>
   );
