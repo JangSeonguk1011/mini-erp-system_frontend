@@ -9,7 +9,8 @@ import AdminLayout from './components/AdminLayout';
 import AdminDashboard from './pages/AdminDashboard';
 import TaskCreate from './pages/TaskCreate'; // '업무 배정' 화면 (신규 생성)
 import TaskEdit from './pages/TaskEdit';     // '업무 수정' 화면 (기존 데이터 수정)
-import ProjectManagement from './pages/ProjectManagement'; 
+import ProjectManagement from './pages/ProjectManagement';  //'프로젝트관리 화면
+import AdminProjectAuth from './pages/AdminProjectAuth'; // '권한부여'화면
 
 function App() {
   return (
@@ -27,6 +28,9 @@ function App() {
           {/* 관리자 대시보드 요약 화면 */}
           <Route path="dashboard" element={<AdminDashboard />} />
           
+          {/* 권한 부여 메뉴 클릭 시 이동할 경로 설정 */}
+            <Route path="/admin/project-auth" element={<AdminProjectAuth />} />
+
           {/* 
              업무 배정 화면 (TaskCreate) 
              - 프로젝트 관리 메뉴에서 '프로젝트 생성' 클릭 시 이동할 경로
