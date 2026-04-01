@@ -1,61 +1,97 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useAuthStore } from './store/authStore';
 
-// 1. 레이아웃 및 공통 컴포넌트 호출
+// 레이아웃 및 공통 컴포넌트
 import AdminLayout from './components/AdminLayout';
 
-// 2. 페이지(Pages) 호출 
-// [중요] 폴더 내 실제 파일명과 대소문자까지 일치해야 오류가 나지 않습니다.
+// 페이지 호출
 import AdminDashboard from './pages/AdminDashboard';
-import TaskCreate from './pages/TaskCreate'; // '업무 배정' 화면 (신규 생성)
-import TaskEdit from './pages/TaskEdit';     // '업무 수정' 화면 (기존 데이터 수정)
-import ProjectManagement from './pages/ProjectManagement';  //'프로젝트관리 화면
-import AdminProjectAuth from './pages/AdminProjectAuth'; // '권한부여'화면
+import UserDashboard from './pages/UserDashboard'; // [추가] 일반 사용자용 대시보드
+import LoginPage from './pages/LoginPage'; 
+import TaskCreate from './pages/TaskCreate';
+import TaskEdit from './pages/TaskEdit';
+import ProjectManagement from './pages/ProjectManagement';
+import AdminProjectAuth from './pages/AdminProjectAuth';
+
+/**
+ * [수정] 권한 보호 컴포넌트 (ProtectedRoute)
+ * @param {string} requiredRole - 해당 페이지에 접근하기 위해 필요한 권한 ('ADMIN' 등)
+ */
+const ProtectedRoute = ({ children, requiredRole }) => {
+  const { isAuthenticated, user } = useAuthStore();
+  
+  // 1. 로그인 여부 확인
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // 2. 권한 확인: 요구되는 권한이 있는데 유저 권한과 다를 경우
+  if (requiredRole && user?.role !== requiredRole) {
+    // 권한이 없으면 각자의 메인 페이지로 보냄
+    return <Navigate to={user?.role === 'ADMIN' ? '/admin/dashboard' : '/user/dashboard'} replace />;
+  }
+
+  return children;
+};
 
 function App() {
+  const { isAuthenticated, user } = useAuthStore();
+
   return (
     <BrowserRouter>
       <Routes>
-        {/* 
-          [관리자 전용 레이아웃 루트]
-          /admin 으로 시작하는 모든 경로는 AdminLayout(사이드바 포함)을 기본으로 가집니다.
-        */}
-        <Route path="/admin" element={<AdminLayout />}>
-          
-          {/* /admin 접속 시 바로 대시보드로 리다이렉트하거나 index로 설정 */}
-          <Route index element={<AdminDashboard />} />
-          
-          {/* 관리자 대시보드 요약 화면 */}
+        {/* ============================================================
+           1. 관리자 영역 (Role: ADMIN) 
+        ============================================================ */}
+        <Route 
+          path="/admin" 
+          element={
+            <ProtectedRoute requiredRole="ADMIN">
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<AdminDashboard />} />
-          
-          {/* 권한 부여 메뉴 클릭 시 이동할 경로 설정 */}
-            <Route path="/admin/project-auth" element={<AdminProjectAuth />} />
-
-          {/* 
-             업무 배정 화면 (TaskCreate) 
-             - 프로젝트 관리 메뉴에서 '프로젝트 생성' 클릭 시 이동할 경로
-          */}
+          <Route path="project-auth" element={<AdminProjectAuth />} />
           <Route path="task-create" element={<TaskCreate />} />
-          
-          {/* 
-             업무 수정 화면 (TaskEdit)
-             - 사이드바의 '업무 배정' 메뉴를 눌렀을 때 보여줄 실제 수정 화면
-          */}
           <Route path="task-edit" element={<TaskEdit />} />
-          
-          {/* 프로젝트 관리 메인 화면 */}
           <Route path="projects" element={<ProjectManagement />} />
-
         </Route>
 
-        {/* 
-          기타 경로 설정 
-          - 로그인처럼 사이드바가 없는 페이지는 AdminLayout 밖에 위치시킵니다.
-        */}
-        {/* <Route path="/login" element={<LoginPage />} /> */}
+        {/* ============================================================
+           2. 일반 사용자 영역 (Role: USER) 
+        ============================================================ */}
+        <Route 
+          path="/user" 
+          element={
+            <ProtectedRoute requiredRole="USER">
+              {/* 일반 사용자용 레이아웃이 있다면 여기서 감싸주세요 */}
+              <UserDashboard /> 
+            </ProtectedRoute>
+          }
+        >
+          <Route path="dashboard" element={<UserDashboard />} />
+        </Route>
+
+        {/* ============================================================
+           3. 공통 영역 (로그인 및 리다이렉트) 
+        ============================================================ */}
+        <Route path="/login" element={<LoginPage />} />
         
-        {/* 잘못된 경로로 들어왔을 때 대시보드로 보냄 */}
-        <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
+        {/* 루트 경로 접속 시 권한에 따라 자동 분기 */}
+        <Route 
+          path="/" 
+          element={
+            isAuthenticated 
+              ? (user?.role === 'ADMIN' ? <Navigate to="/admin/dashboard" /> : <Navigate to="/user/dashboard" />)
+              : <Navigate to="/login" />
+          } 
+        />
+
+        {/* 잘못된 경로는 다시 루트로 */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );

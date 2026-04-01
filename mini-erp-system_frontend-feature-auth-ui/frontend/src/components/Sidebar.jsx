@@ -1,63 +1,57 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuthStore } from '../store/authStore'; // Zustand 스토어 연결 (로그인 상태 관리)
+import { useAuthStore } from '../store/authStore'; // Zustand 스토어 연결
 import { 
   LayoutDashboard, 
-  ShieldCheck,     // 권한 부여 아이콘으로 변경
+  ShieldCheck, 
   ClipboardList, 
   Calendar, 
   FolderKanban, 
-  LogOut,
-  UserCheck        // 팀장/담당자 관련 아이콘
+  LogOut
 } from 'lucide-react';
 
 const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Zustand 스토어에서 유저 정보와 로그아웃 함수 가져옴 (백엔드 연동 핵심)
+  // Zustand 스토어에서 유저 정보와 로그아웃 함수 가져옴
   const { user, logout } = useAuthStore(); 
 
   // 현재 활성화된 메뉴인지 확인하는 함수 (UI 하이라이트 결정)
   const isActive = (path) => location.pathname === path;
 
-  // 로그아웃 핸들러: 확인 창을 띄운 후 스토어 클리어 및 로그인 페이지 이동
+  /**
+   * [수정] 로그아웃 핸들러
+   * 단순히 navigate만 하면 App.jsx의 라우트 설정 문제로 이동이 안 될 수 있습니다.
+   * window.location.replace를 사용하여 강제로 페이지를 새로고침하며 로그인창으로 보냅니다.
+   */
   const handleLogout = () => {
     if (window.confirm("로그아웃 하시겠습니까?")) {
-      logout();
-      navigate('/login');
+      console.log("1. 로그아웃 프로세스 시작 (스토어 초기화)");
+      
+      // 1. Zustand 상태 및 로컬스토리지 삭제 실행
+      logout(); 
+      
+      console.log("2. 로그인 페이지로 강제 리다이렉트 실행");
+      
+      // 2. 리액트 내부 navigate가 작동하지 않을 경우를 대비한 강제 이동 방식
+      // replace를 사용하면 뒤로가기로 다시 관리자 페이지에 오는 것을 방지합니다.
+      window.location.replace('/login');
     }
   };
 
-  // 관리자 전용 메뉴 리스트 정의
+  // 관리자 전용 메뉴 리스트
   const menuItems = [
-    { 
-      icon: <LayoutDashboard size={18} />, 
-      label: '관리자 대시보드', 
-      path: '/admin/dashboard' 
-    },
-    { 
-      // [추가/수정] 권한 부여 페이지 연결 (KeyRound 대신 ShieldCheck 사용으로 보안 강조)
-      icon: <ShieldCheck size={18} />, 
-      label: '권한 부여', 
-      path: '/admin/project-auth' 
-    },
-    { 
-      icon: <ClipboardList size={18} />, 
-      label: '업무 배정(수정)', 
-      path: '/admin/task-edit' 
-    }, 
-    { 
-      icon: <Calendar size={18} />, 
-      label: '연차 승인', 
-      path: '/admin/leave' 
-    },
+    { icon: <LayoutDashboard size={18} />, label: '관리자 대시보드', path: '/admin/dashboard' },
+    { icon: <ShieldCheck size={18} />, label: '권한 부여', path: '/admin/project-auth' },
+    { icon: <ClipboardList size={18} />, label: '업무 배정(수정)', path: '/admin/task-edit' }, 
+    { icon: <Calendar size={18} />, label: '연차 승인', path: '/admin/leave' },
   ];
 
   return (
     <div className="flex flex-col h-full p-6 bg-white shadow-sm border-r border-gray-100 overflow-y-auto">
       
-      {/* 1. 로고 영역: 클릭 시 대시보드로 이동 */}
+      {/* 1. 로고 영역 */}
       <div 
         className="flex items-center gap-2 mb-10 px-2 cursor-pointer"
         onClick={() => navigate('/admin/dashboard')}
@@ -69,10 +63,9 @@ const Sidebar = () => {
         </div>
       </div>
 
-      {/* 2. 관리자 프로필 섹션: 현재 로그인한 관리자의 정보를 표시 */}
+      {/* 2. 관리자 프로필 섹션 */}
       <div className="flex items-center gap-3 mb-10 px-2">
         <div className="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center text-white font-bold shadow-md border-2 border-white">
-          {/* 유저 이름의 첫 글자를 아바타로 사용 */}
           {user?.name?.charAt(0) || '관'}
         </div>
         <div>
@@ -84,9 +77,8 @@ const Sidebar = () => {
         </div>
       </div>
 
-      {/* 3. 메인 메뉴 리스트: 반복문을 통해 메뉴 생성 */}
+      {/* 3. 메인 메뉴 리스트 */}
       <nav className="flex-1 space-y-8">
-        {/* 관리 메뉴 그룹 */}
         <div>
           <p className="text-[10px] font-bold text-gray-400 ml-2 mb-4 uppercase tracking-[0.15em]">Admin Menus</p>
           <div className="space-y-1.5">
@@ -94,7 +86,6 @@ const Sidebar = () => {
               <button
                 key={item.path}
                 onClick={() => navigate(item.path)}
-                // isActive 함수를 통해 현재 페이지일 경우 파란색 테마 적용
                 className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-bold transition-all duration-200 group ${
                   isActive(item.path) 
                     ? 'bg-blue-50 text-blue-700 shadow-sm' 
@@ -105,7 +96,6 @@ const Sidebar = () => {
                   {item.icon}
                   <span className="text-sm">{item.label}</span>
                 </div>
-                {/* 활성화된 메뉴 우측에 작은 점 표시 */}
                 {isActive(item.path) && (
                   <div className="w-1.5 h-1.5 bg-blue-600 rounded-full"></div>
                 )}
@@ -114,7 +104,7 @@ const Sidebar = () => {
           </div>
         </div>
 
-        {/* 프로젝트 그룹: 별도의 프로젝트 관리 메뉴 */}
+        {/* 프로젝트 그룹 */}
         <div>
           <p className="text-[10px] font-bold text-gray-400 ml-2 mb-4 uppercase tracking-[0.15em]">Projects</p>
           <button
@@ -136,13 +126,12 @@ const Sidebar = () => {
         </div>
       </nav>
 
-      {/* 4. 하단 설정 및 로그아웃 영역 */}
+      {/* 4. 하단 로그아웃 영역 */}
       <div className="pt-6 border-t border-gray-50">
         <button 
           onClick={handleLogout}
           className="w-full flex items-center gap-3 px-4 py-3 text-orange-500 font-bold hover:bg-orange-50 rounded-xl transition-all group"
         >
-          {/* 호버 시 아이콘이 왼쪽으로 살짝 움직이는 애니메이션 추가 */}
           <LogOut size={18} className="group-hover:-translate-x-1 transition-transform" />
           <span className="text-sm">로그아웃</span>
         </button>
