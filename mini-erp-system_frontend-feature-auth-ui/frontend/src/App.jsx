@@ -1,35 +1,57 @@
+import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import LoginPage from './pages/LoginPage';
-import SignupPage from './pages/SignupPage';
-import FindIdPage from './pages/FindIdPage'; 
-import FindPwPage from './pages/FindPwPage';
 
-// [추가] 새로 제작한 대시보드 페이지들을 불러옵니다.
-// 파일명과 경로가 실제 프로젝트와 일치하는지 꼭 확인하세요!
+// 1. 레이아웃 및 공통 컴포넌트 호출
+import AdminLayout from './components/AdminLayout';
+
+// 2. 페이지(Pages) 호출 
+// [중요] 폴더 내 실제 파일명과 대소문자까지 일치해야 오류가 나지 않습니다.
 import AdminDashboard from './pages/AdminDashboard';
-import UserDashboard from './pages/UserDashboard';
+import TaskCreate from './pages/TaskCreate'; // '업무 배정' 화면 (신규 생성)
+import TaskEdit from './pages/TaskEdit';     // '업무 수정' 화면 (기존 데이터 수정)
+import ProjectManagement from './pages/ProjectManagement'; 
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/login" />} />
-       
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
-        <Route path="/find-id" element={<FindIdPage />} />
-        <Route path="/find-pw" element={<FindPwPage />} />
-        
-        {/* [추가] 로그인 후 이동할 대시보드 경로를 설정 */}
-        
-        {/* 일반 사용자 대시보드: LoginPage에서 navigate('/dashboard') 시 연결됨 */}
-        <Route path="/dashboard" element={<UserDashboard />} />
-        
-        {/* 관리자 대시보드: LoginPage에서 navigate('/admin/dashboard') 시 연결됨 */}
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        {/* 
+          [관리자 전용 레이아웃 루트]
+          /admin 으로 시작하는 모든 경로는 AdminLayout(사이드바 포함)을 기본으로 가집니다.
+        */}
+        <Route path="/admin" element={<AdminLayout />}>
+          
+          {/* /admin 접속 시 바로 대시보드로 리다이렉트하거나 index로 설정 */}
+          <Route index element={<AdminDashboard />} />
+          
+          {/* 관리자 대시보드 요약 화면 */}
+          <Route path="dashboard" element={<AdminDashboard />} />
+          
+          {/* 
+             업무 배정 화면 (TaskCreate) 
+             - 프로젝트 관리 메뉴에서 '프로젝트 생성' 클릭 시 이동할 경로
+          */}
+          <Route path="task-create" element={<TaskCreate />} />
+          
+          {/* 
+             업무 수정 화면 (TaskEdit)
+             - 사이드바의 '업무 배정' 메뉴를 눌렀을 때 보여줄 실제 수정 화면
+          */}
+          <Route path="task-edit" element={<TaskEdit />} />
+          
+          {/* 프로젝트 관리 메인 화면 */}
+          <Route path="projects" element={<ProjectManagement />} />
 
-        {/* (선택사항)없는 주소로 들어왔을 때 처리 - 404 페이지 대신 로그인으로 이동
-        <Route path="*" element={<Navigate to="/login" />} /> */}
+        </Route>
+
+        {/* 
+          기타 경로 설정 
+          - 로그인처럼 사이드바가 없는 페이지는 AdminLayout 밖에 위치시킵니다.
+        */}
+        {/* <Route path="/login" element={<LoginPage />} /> */}
+        
+        {/* 잘못된 경로로 들어왔을 때 대시보드로 보냄 */}
+        <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
       </Routes>
     </BrowserRouter>
   );
