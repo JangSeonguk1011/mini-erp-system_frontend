@@ -1,9 +1,29 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import api from '../api/axios';
+import { useAuthStore } from '../store/authStore';
 import LeaveHistoryTable from '../components/leave/LeaveHistoryTable';
 import LeaveStatusCards from '../components/leave/LeaveStatusCards';
 
 // [수정] 부모로부터 onNavigateToApply 함수를 받습니다.
 const LeaveHistoryPage = ({ onNavigateToApply }) => {
+  const { user } = useAuthStore();
+  const [leaveData, setLeaveData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      if (!user?.userId) return;
+      try {
+        const response = await api.get(`/leaves?userId=${user.userId}`);
+        setLeaveData(response.data);
+      } catch (error) {
+        console.error("내역 로딩 실패:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchHistory();
+  }, [user]);
 
   const handleGoToApply = () => {
     // [추가] 대시보드 상태를 'leave-apply'로 바꿉니다.
@@ -17,14 +37,14 @@ const LeaveHistoryPage = ({ onNavigateToApply }) => {
         <p style={{ color: '#666', marginTop: '10px' }}>나의 연차 신청 현황을 확인하세요</p>
       </div>
 
-      <LeaveStatusCards />
+      <LeaveStatusCards leaveData={leaveData} />
 
       <div style={styles.listContainer}>
         <div style={styles.listHeader}>
           <h3 style={{ margin: 0, fontSize: '18px' }}>연차 신청 목록</h3>
           <button onClick={handleGoToApply} style={styles.applyBtn}>+ 신청하기</button>
         </div>
-        <LeaveHistoryTable />
+        <LeaveHistoryTable historyData={leaveData} />
       </div>
     </div>
   );

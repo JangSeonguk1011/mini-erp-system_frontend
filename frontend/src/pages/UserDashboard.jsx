@@ -71,9 +71,9 @@ const UserDashboard = () => {
               {user?.name?.charAt(0) || 'U'}
             </div>
             <div>
-              <p className="text-sm font-bold text-gray-800">{user?.name || '사용자'}</p>
+              <p className="text-sm font-bold text-gray-800">{user?.userName || '사용자'}</p>
               <p className="text-xs text-gray-500">
-                {user?.department || '부서'} · {user?.position || '직급'}
+                {user?.department || '부서'} · {user?.positionName || '직급'}
               </p>
             </div>
           </div>
@@ -149,7 +149,7 @@ const DashboardHome = ({ user }) => (
       <div>
         <h1 className="text-2xl font-bold text-gray-800 font-sans">대시보드</h1>
         <p className="text-gray-500 text-sm mt-1">
-          안녕하세요, <span className="font-semibold text-gray-700">{user?.name}님!</span> 👋 
+          안녕하세요, <span className="font-semibold text-gray-700">{user?.userName}님!</span> 👋 
           현재 <span className="text-blue-600 font-medium">5개</span>의 업무가 진행 대기 중입니다.
         </p>
       </div>
@@ -159,7 +159,7 @@ const DashboardHome = ({ user }) => (
           <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
         </button>
         <div className="w-8 h-8 bg-blue-800 text-white rounded-lg shadow-inner flex items-center justify-center text-xs font-bold">
-          {user?.name?.charAt(0) || '김'}
+          {user?.userName?.charAt(0) || '김'}
         </div>
       </div>
     </header>

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import api from '../../api/axios';
 import { useNavigate } from 'react-router-dom'; // 1. 네비게이트 추가
 
-const LeaveApplyForm = ({ remainingBalance = 15, onSuccess }) => {
+const LeaveApplyForm = ({ remainingBalance = 0, user }) => {
     const navigate = useNavigate(); // 2. 네비게이트 함수 선언
 
     // 1. [상태 관리] 입력 폼 데이터
@@ -12,7 +13,7 @@ const LeaveApplyForm = ({ remainingBalance = 15, onSuccess }) => {
         reason: ''
     });
 
-    // 2. [비즈니스 로직] 사용 일수 계산 (주말/공휴일 제외)
+    // 2. 사용 일수 계산 (주말/공휴일 제외)
     const calculateUsedDays = () => {
         const { startDate, endDate, leaveType } = formData;
         if (!startDate || !endDate) return 0;
@@ -51,17 +52,9 @@ const LeaveApplyForm = ({ remainingBalance = 15, onSuccess }) => {
     // 3. [핸들러] 입력값 변경
     const handleChange = (e) => {
         const { name, value } = e.target;
-        if (name === 'startDate' || name === 'endDate') {
-            const day = new Date(value).getDay();
-            if (day === 0 || day === 6) {
-                alert("⚠️ 주말(토/일)은 선택할 수 없습니다.");
-                return;
-            }
-        }
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-  // 4. [제출] 로컬 스토리지 저장 및 메뉴 전환 (변경 부분)
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -70,37 +63,19 @@ const LeaveApplyForm = ({ remainingBalance = 15, onSuccess }) => {
             return;
         }
 
-        if (!formData.startDate || !formData.endDate) {
-            alert("❌ 기간을 선택해주세요.");
-            return;
-        }
-
         try {
-            const now = new Date();
-            const todayStr = now.toISOString().split('T')[0].replace(/-/g, '.');
+            const response = await api.get(`/leaves?userId=${user.userId}`);
+            const existingHistory = response.data;
 
-            const newRequest = {
-                id: new Date().getTime(),
-                requestDate: todayStr, 
-                leaveType: formData.leaveType === 'ANNUAL' ? '연차' : 
-                            formData.leaveType === 'LONG_ANNUAL' ? '연속연차' :
-                            formData.leaveType === 'HALF_MORNING' ? '오전반차' : '오후반차',
-                startDate: formData.startDate.replace(/-/g, '.'),
-                endDate: formData.endDate.replace(/-/g, '.'),
-                usedDays: calculatedDays,
-                reason: formData.reason || '개인 사유',
-                status: '대기중'
-            };
-
-            const existingHistory = JSON.parse(localStorage.getItem('leaveHistory') || '[]');
-
-            // 중복 체크 로직 (유지)
+            // 중복 체크 
             const newStart = new Date(formData.startDate);
             const newEnd = new Date(formData.endDate);
+
             const isOverlapped = existingHistory.some(item => {
-                if (item.status === '반려') return false;
-                const existStart = new Date(item.startDate.replace(/\./g, '-'));
-                const existEnd = new Date(item.endDate.replace(/\./g, '-'));
+                if (item.status === 'REJECTED') return false;
+
+                const existStart = new Date(item.startDate);
+                const existEnd = new Date(item.endDate);
                 return newStart <= existEnd && newEnd >= existStart;
             });
 
@@ -109,15 +84,23 @@ const LeaveApplyForm = ({ remainingBalance = 15, onSuccess }) => {
                 return;
             }
 
-            const updatedHistory = [newRequest, ...existingHistory];
-            localStorage.setItem('leaveHistory', JSON.stringify(updatedHistory));
+            const newRequest = {
+                userId: user.userId, 
+                userName: user.userName,
+                requestDate: new Date().toISOString().split('T')[0], 
+                leaveType: formData.leaveType,
+                startDate: formData.startDate,
+                endDate: formData.endDate,
+                usedDays: calculatedDays,
+                reason: formData.reason || '개인 사유',
+                status: 'PENDING' // 대기중 
+            };
+
+            // 2. json-server의 /leaves 엔드포인트로 POST 요청
+            await api.post('/leaves', newRequest);
 
             alert("✅ 연차 신청이 정상적으로 완료되었습니다.");
             
-            // --- [이 부분이 핵심 변경 사항입니다] ---
-            // 기존: navigate('/leaves'); 
-            // 변경: 부모가 전달해준 페이지 전환 함수 실행
-            if (onSuccess) onSuccess(); 
             // ---------------------------------------
 
         } catch (err) {
@@ -133,8 +116,7 @@ const LeaveApplyForm = ({ remainingBalance = 15, onSuccess }) => {
                 <div style={styles.inputGroup}>
                     <label style={styles.label}>연차 유형 *</label>
                     <select name="leaveType" value={formData.leaveType} onChange={handleChange} style={styles.select}>
-                        <option value="ANNUAL">연차 (1일)</option>
-                        <option value="LONG_ANNUAL">연속 연차 (2일 이상)</option>
+                        <option value="ANNUAL">연차</option>
                         <option value="HALF_MORNING">오전 반차 (0.5일)</option>
                         <option value="HALF_AFTERNOON">오후 반차 (0.5일)</option>
                     </select>

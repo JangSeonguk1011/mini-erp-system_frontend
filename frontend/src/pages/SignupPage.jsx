@@ -8,7 +8,7 @@ export default function SignupPage() {
   const { signup } = useAuthStore();
   
   const [formData, setFormData] = useState({
-    name: '',
+    userName: '',
     rank: '',
     userId: '', 
     email: '',
@@ -63,7 +63,7 @@ export default function SignupPage() {
    */
   const isFormValid = 
     formData.userId && 
-    formData.name && 
+    formData.userName && 
     formData.rank && 
     isEmailValid && // 이메일 형식이 맞아야 함
     passwordValid.isMinLength && 
@@ -80,10 +80,10 @@ export default function SignupPage() {
 
     const apiData = {
       userId: formData.userId,
-      name: formData.name,
+      userName: formData.userName,
       email: formData.email,
       password: formData.password,
-      position: formData.rank,
+      positionName: formData.rank,
       department: formData.department
     };
 
@@ -147,7 +147,7 @@ export default function SignupPage() {
               <div className="relative">
                 <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input 
-                  id="name" 
+                  id="userName" 
                   type="text" 
                   onChange={handleChange} 
                   placeholder="이름" 

@@ -1,45 +1,27 @@
 import React, { useEffect, useState } from 'react';
-//import { leaveApi } from '../../api/leaveApi';
 
-const LeaveHistoryTable = () => {
-    const [history, setHistory] = useState([]);
-
-    // useEffect(() => {
-    //     const fetchHistory = async () => {
-    //         try {
-    //             const response = await leaveApi.getMyRequests();
-    //             if (response.success) {
-    //                 setHistory(response.data); // 서버에서 받은 배열 저장
-    //             }
-    //         } catch (error) {
-    //             console.error("내역 로드 실패:", error.message);
-    //         } finally {
-    //             setLoading(false);
-    //         }
-    //     };
-    //     fetchHistory();
-    // }, []);
-
-    useEffect(() => {
-        const loadData = () => {
-            const savedData = localStorage.getItem('leaveHistory');
-            if (savedData) {
-                setHistory(JSON.parse(savedData));
-            }
-        };
-        loadData();
-    }, []);
+const LeaveHistoryTable = ({ historyData = [] }) => {
 
     // 상태에 따른 배지 색상 결정 함수
     const getStatusStyle = (status) => {
         switch (status) {
-            case '승인': return { bg: '#eefaf3', color: '#2ecc71' };
-            case '대기중': return { bg: '#fff9e6', color: '#f1c40f' };
-            case '반려': return { bg: '#fdf2f2', color: '#e74c3c' };
-            default: return { bg: '#f5f5f5', color: '#888' };
+            case '승인': 
+            case 'APPROVED': return { bg: '#eefaf3', color: '#2ecc71', text: '승인' };
+            case '대기중': 
+            case 'PENDING': return { bg: '#fff9e6', color: '#f1c40f', text: '대기중' };
+            case '반려': 
+            case 'REJECTED': return { bg: '#fdf2f2', color: '#e74c3c', text: '반려' };
+            default: return { bg: '#f5f5f5', color: '#888', text: status };
         }
     };
 
+    const leaveTypeLabels = {
+    'ANNUAL': '연차',
+    'HALF_MORNING': '오전 반차',
+    'HALF_AFTERNOON': '오후 반차'
+    };
+
+    const sortedHistory = [...historyData].reverse();
 
     return (
         <div style={styles.container}>
@@ -57,13 +39,13 @@ const LeaveHistoryTable = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {history.length > 0 ? (
-                        history.map((item) => {
-                            const status = getStatusStyle(item.status);
+                    {sortedHistory.length > 0 ? (
+                        sortedHistory.map((item) => {
+                            const statusInfo = getStatusStyle(item.status);
                             return (
                                 <tr key={item.id} style={styles.tr}>
                                     <td style={styles.td}>{item.requestDate}</td>
-                                    <td style={styles.td}>{item.leaveType}</td>
+                                    <td style={styles.td}>{leaveTypeLabels[item.leaveType] || item.leaveType}</td>
                                     <td style={styles.td}>{item.startDate}</td>
                                     <td style={styles.td}>{item.endDate}</td>
                                     <td style={{...styles.td, fontWeight: 'bold'}}>{item.usedDays}일</td>
@@ -71,13 +53,12 @@ const LeaveHistoryTable = () => {
                                     <td style={styles.td}>
                                         <span style={{
                                             ...styles.badge,
-                                            backgroundColor: status.bg,
-                                            color: status.color
+                                            backgroundColor: statusInfo.bg,
+                                            color: statusInfo.color
                                         }}>
-                                            {item.status}
+                                            {statusInfo.text}
                                         </span>
                                     </td>
-                                    <td style={styles.td}>-</td>
                                 </tr>
                             );
                         })

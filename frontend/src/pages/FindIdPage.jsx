@@ -7,7 +7,7 @@ export default function FindIdPage() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [foundId, setFoundId] = useState('');
-  const [formData, setFormData] = useState({ name: '', email: '' });
+  const [formData, setFormData] = useState({ userName: '', email: '' });
 
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -23,7 +23,7 @@ export default function FindIdPage() {
     
     try {
       // 1. 이름(name)과 이메일(email)이 일치하는 유저를 쿼리 스트링으로 조회합니다.
-      const response = await axios.get(`/users?name=${formData.name}&email=${formData.email}`);
+      const response = await axios.get(`/users?userName=${formData.userName}&email=${formData.email}`);
 
       // 2. 검색 결과가 있는지 확인합니다.
       if (response.data && response.data.length > 0) {

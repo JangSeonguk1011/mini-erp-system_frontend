@@ -12,6 +12,7 @@ import ProjectPage from './pages/ProjectPage';
 // [추가] 연차 관련 페이지 불러오기
 import LeaveHistoryPage from './pages/LeaveHistoryPage'; // 신청 내역 페이지
 import LeaveApplyPage from './pages/LeaveApplyPage';     // 연차 신청 페이지
+import LeaveApprovalPage from './pages/LeaveApprovalPage';
 
 function App() {
   return (
@@ -36,6 +37,9 @@ function App() {
         
         {/* 연차 신청 폼 (날짜 선택하고 신청하는 페이지) */}
         <Route path="/leaves/new" element={<LeaveApplyPage />} />
+
+        {/* /admin/approvals 주소일 때 */}
+        <Route path="/admin/approvals" element={<LeaveApprovalPage />} />
 
         {/* (선택사항)없는 주소로 들어왔을 때 처리 */}
         <Route path="*" element={<Navigate to="/login" />} />

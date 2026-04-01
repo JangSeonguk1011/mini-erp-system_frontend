@@ -1,37 +1,14 @@
 // src/components/leave/LeaveStatusCards.jsx
 import React, { useEffect, useState } from 'react';
 
-const LeaveStatusCards = () => {
-    const [stats, setStats] = useState({
-        total: 0,
-        approved: 0,
-        pending: 0,
-        rejected: 0
-    });
+const LeaveStatusCards = ({ leaveData = [] }) => {
 
-    useEffect(() => {
-        // 1. 로컬 스토리지에서 데이터 읽기
-        const loadStats = () => {
-            const savedData = localStorage.getItem('leaveHistory');
-            if (savedData) {
-                const history = JSON.parse(savedData);
-                
-                // 2. 상태별 개수 계산
-                setStats({
-                    total: history.length,
-                    approved: history.filter(item => item.status === '승인').length,
-                    pending: history.filter(item => item.status === '대기중').length,
-                    rejected: history.filter(item => item.status === '반려').length
-                });
-            }
-        };
-
-        loadStats();
-
-        // 다른 탭이나 페이지 이동 시 데이터 동기화를 위한 이벤트 (선택사항)
-        window.addEventListener('storage', loadStats);
-        return () => window.removeEventListener('storage', loadStats);
-    }, []);
+    const stats = {
+        total: leaveData.length,
+        approved: leaveData.filter(item => item.status === '승인' || item.status === 'APPROVED').length,
+        pending: leaveData.filter(item => item.status === '대기중' || item.status === 'PENDING').length,
+        rejected: leaveData.filter(item => item.status === '반려' || item.status === 'REJECTED').length
+    };
 
     const cardData = [
         { label: '전체 신청', count: stats.total, icon: '📋', color: '#333' },

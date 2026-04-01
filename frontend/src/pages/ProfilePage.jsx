@@ -93,8 +93,8 @@ const ProfilePage = ({ isOpen, onClose, user }) => {
               <div className="w-24 h-24 bg-blue-600 rounded-full flex items-center justify-center text-white text-3xl font-black shadow-lg mb-4">
                 {user?.name?.charAt(0) || 'U'}
               </div>
-              <h4 className="text-xl font-extrabold text-gray-800">{user?.name}</h4>
-              <p className="text-sm text-gray-400 font-medium">{user?.department} · {user?.position}</p>
+              <h4 className="text-xl font-extrabold text-gray-800">{user?.userName}</h4>
+              <p className="text-sm text-gray-400 font-medium">{user?.department} · {user?.positionName}</p>
             </div>
             <div className="px-6 space-y-3 pb-8">
               <InfoItem label="아이디" value={user?.userId} />
