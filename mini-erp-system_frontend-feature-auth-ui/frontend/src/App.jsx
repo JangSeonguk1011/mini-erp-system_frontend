@@ -8,6 +8,7 @@ import FindPwPage from './pages/FindPwPage';
 // 파일명과 경로가 실제 프로젝트와 일치하는지 꼭 확인하세요!
 import AdminDashboard from './pages/AdminDashboard';
 import UserDashboard from './pages/UserDashboard';
+import LeaveApprovalPage from './pages/LeaveApprovalPage'
 
 function App() {
   return (
@@ -27,6 +28,10 @@ function App() {
         
         {/* 관리자 대시보드: LoginPage에서 navigate('/admin/dashboard') 시 연결됨 */}
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        
+        {/* /admin/approvals 주소일 때 */}
+        <Route path="/admin/approvals" element={<LeaveApprovalPage />} />
+        
 
         {/* (선택사항)없는 주소로 들어왔을 때 처리 - 404 페이지 대신 로그인으로 이동
         <Route path="*" element={<Navigate to="/login" />} /> */}

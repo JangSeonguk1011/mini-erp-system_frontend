@@ -51,10 +51,10 @@ const AdminDashboard = () => {
           <div>
             <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-4 px-2 font-bold">관리 메뉴</p>
             <div className="space-y-1">
-              <AdminNavItem icon={<Layout size={18}/>} label="관리자 대시보드" active />
+              <AdminNavItem icon={<Layout size={18}/>} label="관리자 대시보드" active={true} />
               <AdminNavItem icon={<Settings size={18}/>} label="권한 부여" />
               <AdminNavItem icon={<Users size={18}/>} label="업무 배정" badge="3" />
-              <AdminNavItem icon={<CheckCircle size={18}/>} label="연차 승인" badge="4" />
+              <AdminNavItem icon={<CheckCircle size={18}/>} label="연차 승인" badge="4" active={false} onClick={() => navigate('/admin/approvals')}/>
             </div>
           </div>
           <div>
@@ -158,8 +158,10 @@ const AdminDashboard = () => {
 // --- 내부 사용 컴포넌트 라이브러리 ---
 
 /** 관리자 사이드바 메뉴 아이템 */
-const AdminNavItem = ({ icon, label, active, badge, isFolder }) => (
-  <div className={`
+const AdminNavItem = ({ icon, label, active, badge, isFolder, onClick }) => (
+  <div 
+    onClick={onClick}
+    className={`
     flex items-center justify-between p-2.5 rounded-lg cursor-pointer transition-all duration-200
     ${active ? 'bg-blue-50 text-blue-700 font-bold shadow-sm' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'}
   `}>
