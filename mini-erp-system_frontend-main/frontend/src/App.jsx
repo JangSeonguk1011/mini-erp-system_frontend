@@ -89,6 +89,9 @@ function App() {
            3. 공통 영역 (로그인 및 리다이렉트) 
         ============================================================ */}
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/find-id" element={<FindIdPage />} />
+        <Route path="/find-pw" element={<FindPwPage />} />
         
         <Route 
           path="/" 
