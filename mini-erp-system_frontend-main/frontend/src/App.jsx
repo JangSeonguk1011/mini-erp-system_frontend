@@ -47,7 +47,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         {/* ============================================================
-           1. 관리자 영역 (Role: ADMIN) - AdminLayout을 사용하는 중첩 라우팅
+           1. 관리자 영역 (Role: ADMIN) 
         ============================================================ */}
         <Route 
           path="/admin" 
@@ -67,16 +67,18 @@ function App() {
         </Route>
 
         {/* ============================================================
-           2. 일반 사용자 영역 (Role: USER) - 레이아웃 없이 단독 페이지로 구성
+           2. 일반 사용자 영역 (Role: USER) 
         ============================================================ */}
         <Route 
-          path="/user/dashboard" 
+          path="/user" 
           element={
             <ProtectedRoute requiredRole="USER">
               <UserDashboard /> 
             </ProtectedRoute>
           }
-        />
+        >
+          <Route path="dashboard" element={<UserDashboard />} />
+        </Route>
 
         {/* 사용자용 프로젝트 및 연차 페이지 */}
         <Route path="/project-page" element={<ProtectedRoute requiredRole="USER"><ProjectPage /></ProtectedRoute>} />
@@ -86,7 +88,8 @@ function App() {
         {/* ============================================================
            3. 공통 영역 (로그인 및 리다이렉트) 
         ============================================================ */}
-        {/* 처음 접속 시(/)의 처리: 로그인 안되어있으면 무조건 /login으로 이동 */}
+        <Route path="/login" element={<LoginPage />} />
+        
         <Route 
           path="/" 
           element={
@@ -95,8 +98,6 @@ function App() {
               : <Navigate to="/login" />
           } 
         />
-
-        <Route path="/login" element={<LoginPage />} />
 
         {/* 잘못된 경로는 다시 루트로 */}
         <Route path="*" element={<Navigate to="/" replace />} />
