@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '@/store/authStore'; // Zustand나 Context API를 사용한 인증 상태 관리
+import { useAuthStore } from '@/store/authStore'; 
 import { Building, User, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
 
 export default function LoginPage() {
   const navigate = useNavigate();
   
-  // 상태 관리: 사용자 입력값 (아이디, 비밀번호) 및 비밀번호 표시 여부
+  // 상태 관리: 사용자 입력값 및 비밀번호 표시 여부
   const [userId, setUserId] = useState(''); 
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -20,14 +20,21 @@ export default function LoginPage() {
   const handleLogin = async (e) => {
     e.preventDefault();
     
-    // 1. authStore의 login 함수를 호출하여 서버와 통신
-    // 서버 응답 데이터 구조 예시: { success: true, data: { user: { role: 'ADMIN', name: '박관리' } } }
-    const result = await login({ userId, password });
+    // 1. authStore의 login 함수를 호출 (팀원 가이드에 맞춰 id/password로 전달됨)
+    const result = await login({
+      userId: userId, 
+      password: password
+    });
     
     if (result.success) {
       // 2. 로그인 성공 시 사용자 권한(Role) 확인
-      // 서버에서 내려주는 데이터 구조에 따라 result.data.role 등으로 수정될 수 있습니다.
-      const userRole = result.data.user.role; 
+      // 서버 응답 구조인 result.data.data.user 에서 정보를 가져옵니다.
+      const userInfo = result.data?.data?.user;
+      
+      // DB 컬럼명에 따라 role 혹은 user_role 모두 대응할 수 있도록 수정
+      const userRole = userInfo?.role || userInfo?.user_role; 
+
+      console.log("로그인 성공! 사용자 권한:", userRole);
 
       if (userRole === 'ADMIN') {
         // 관리자 권한일 경우: 관리자 대시보드로 이동
@@ -37,8 +44,8 @@ export default function LoginPage() {
         navigate('/dashboard'); 
       }
     } else {
-      // 3. 로그인 실패 시 서버에서 보내준 에러 메시지 출력
-      alert(result.message || "로그인 정보를 확인해주세요.");
+      // 3. 로그인 실패 시 서버 에러 메시지 출력
+      alert(result.message || "아이디 또는 비밀번호를 확인해주세요.");
     }
   };
 
@@ -131,7 +138,7 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* 하단 보조 메뉴 (아이디/비밀번호 찾기, 회원가입 이동) */}
+        {/* 하단 보조 메뉴 */}
         <div className="mt-8 pt-6 border-t border-gray-100 text-center text-xs text-gray-500 space-x-1.5 flex items-center justify-center">
           <button type="button" onClick={() => navigate('/find-id')} className="hover:text-blue-600">
             아이디 찾기
