@@ -1,0 +1,235 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import api from '../api/axios';
+import { 
+  Bell,     
+  X, 
+  CheckCircle, 
+  Calendar, 
+  Layout 
+} from 'lucide-react';
+
+const LeaveApprovalPage = () => {
+  const navigate = useNavigate();
+
+  // 1. 데이터 리스트 
+  const [requests, setRequests] = useState([]);
+
+  useEffect(() => {
+  const fetchRequests = async () => {
+    try {
+      const response = await api.get('/leaves'); // db.json의 leaves 데이터 가져오기
+      setRequests(response.data);
+    } catch (error) {
+      console.error("데이터 로드 실패:", error);
+    }
+  };
+  fetchRequests();
+  }, []);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState(null);
+  const [rejectReason, setRejectReason] = useState('');
+
+  // 2. 실제 카운트
+  const pendingCount = requests.filter(r => r.status === '대기중' || r.status === 'PENDING').length;
+  const approvedCount = requests.filter(r => r.status === '승인' || r.status === 'APPROVED').length;
+  const rejectedCount = requests.filter(r => r.status === '반려' || r.status === 'REJECT').length;
+  const thisWeekCount = approvedCount;
+
+  // [승인] 처리
+  const handleApprove = async (id) => {
+    try {
+        await api.patch(`/leaves/${id}`, { status: 'APPROVED' }); // 서버 데이터 업데이트
+        setRequests(requests.map(req => 
+            req.id === id ? { ...req, status: 'APPROVED' } : req
+        ));
+        alert('승인 처리가 완료되었습니다.');
+    } catch (err) {
+        alert('승인 처리 중 오류가 발생했습니다.');
+    }
+  };
+
+  // [반려] 모달 열기
+  const openRejectModal = (req) => {
+    setSelectedRequest(req);
+    setIsModalOpen(true);
+  };
+
+  // [반려] 최종 처리
+  const handleRejectSubmit = async () => {
+    if (!rejectReason.trim()) {
+      alert('반려 사유를 입력해주세요.');
+      return;
+    }
+    try {
+    // 선택된 신청서의 id를 찾아 status를 '반려'로, 사유를 함께 저장
+    await api.patch(`/leaves/${selectedRequest.id}`, { 
+      status: 'REJECTED', 
+      rejectReason: rejectReason 
+    });
+
+    // 3. 서버 저장 성공 후, 현재 화면(상태) 업데이트
+    setRequests(requests.map(req => 
+      req.id === selectedRequest.id 
+        ? { ...req, status: 'REJECTED', rejectReason: rejectReason } 
+        : req
+    ));
+
+    setIsModalOpen(false);
+    setRejectReason('');
+    alert('반려 처리가 완료되었습니다.');
+  } catch (error) {
+    console.error("반려 처리 실패:", error);
+    alert('서버 연결에 실패했습니다. 다시 시도해주세요.');
+  }
+  };
+
+  const leaveTypeLabels = {
+    'ANNUAL': '연차',
+    'HALF_MORNING': '오전 반차',
+    'HALF_AFTERNOON': '오후 반차',
+  };
+
+  const statusLabels = {
+    'PENDING': '대기중',
+    'APPROVED': '승인',
+    'REJECTED': '반려',
+    '승인': '승인',
+    '반려': '반려',
+    '대기중': '대기중'
+  };
+
+  return (
+    <div className="animate-fadeIn p-6 bg-gray-50/30 min-h-screen">
+        <header className="mb-8">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-800 tracking-tight">연차 승인 / 반려</h2>
+            <p className="text-sm text-gray-400 mt-1">사원들의 신청 내역을 검토하고 처리 결과를 반영합니다.</p>
+          </div>
+          <div className="flex items-center gap-4">
+          </div>
+        </header>
+
+        <section className="mb-10">
+          {/* 하단 타이틀 부분 문구 수정 */}
+          <div className="flex items-center gap-3 mb-6">
+            <span className="text-2xl">📋</span>
+            <h3 className="text-xl font-bold text-gray-900 font-sans">결재 현황</h3>
+          </div>
+
+          <div className="grid grid-cols-4 gap-6">
+            {/* 실제 데이터 기반으로 숫자 연동 */}
+            <StatusCard title="대기 중" count={pendingCount} icon="⏳" />
+            <StatusCard title="이번 달 승인" count={approvedCount} icon="✅" color="text-emerald-500" />
+            <StatusCard title="이번 달 반려" count={rejectedCount} icon="❌" color="text-red-500" />
+            <StatusCard title="이번 주 연차자" count={thisWeekCount} icon="📅" color="text-blue-500" />
+          </div>
+        </section>
+
+        <section className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <table className="w-full text-left border-collapse">
+            <thead className="bg-gray-50 border-b border-gray-100">
+              <tr className="text-[11px] text-gray-400 font-bold uppercase tracking-wider">
+                <th className="px-6 py-4">신청자</th>
+                <th className="px-6 py-4">유형</th>
+                <th className="px-6 py-4">신청 기간</th>
+                <th className="px-6 py-4">사유</th>
+                <th className="px-6 py-4 text-center">신청일</th>
+                <th className="px-6 py-4 text-center">상태</th>
+                <th className="px-6 py-4 text-center">결재 처리</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 text-sm">
+              {requests.map((req) => (
+                <tr key={req.id} className="hover:bg-gray-50/50 transition-colors">
+                  <td className="px-6 py-4 font-bold text-gray-700">{req.userName}</td>
+                  <td className="px-6 py-4 text-gray-600">{leaveTypeLabels[req.leaveType] || req.leaveType}</td>
+                  <td className="px-6 py-4 text-gray-500 font-medium">{req.startDate} ~ {req.endDate} ({req.usedDays}일)</td>
+                  <td className="px-6 py-4 text-gray-500 italic">"{req.reason}"</td>
+                  <td className="px-6 py-4 text-center text-gray-400">{req.requestDate || req.applyDate}</td>
+                  <td className="px-6 py-4 text-center">
+                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                      (req.status === '승인' || req.status === 'APPROVED') ? 'bg-emerald-50 text-emerald-600' : 
+                      (req.status === '반려' || req.status === 'REJECTED') ? 'bg-red-50 text-red-600' : 'bg-orange-50 text-orange-600'
+                    }`}>
+                      {statusLabels[req.status] || req.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    {(req.status === '대기중' || req.status === 'PENDING') ? (
+                      <div className="flex justify-center gap-2">
+                        <button onClick={() => handleApprove(req.id)} className="px-3 py-1.5 bg-emerald-500 text-white text-xs rounded-md font-bold hover:bg-emerald-600 shadow-sm transition-colors">승인</button>
+                        <button onClick={() => openRejectModal(req)} className="px-3 py-1.5 bg-red-500 text-white text-xs rounded-md font-bold hover:bg-red-600 shadow-sm transition-colors">반려</button>
+                      </div>
+                    ) : (
+                      <span className="text-gray-400 text-[11px] font-medium">
+                        {(req.status === '반려' || req.status === 'REJECTED') ? `반려: ${req.rejectReason || '사유 없음'}` : '결재 완료'}
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+
+      {/* --- 반려 사유 입력 모달 --- */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+            <div className="flex justify-between items-center p-5 border-b border-gray-100">
+              <div className="flex items-center gap-2 font-bold text-gray-800">
+                <X size={20} className="text-red-500" /> 연차 반려 사유
+              </div>
+              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600"><X size={20} /></button>
+            </div>
+            
+            <div className="p-6">
+              <p className="text-sm text-gray-600 mb-4 font-medium">
+                <span className="text-blue-700 font-bold">{selectedRequest?.userName}</span>님의 연차 신청을 반려합니다. 반려 사유를 입력해주세요.
+              </p>
+              
+              <label className="text-xs font-bold text-gray-500 block mb-2">반려 사유 *</label>
+              <textarea 
+                className="w-full h-32 p-4 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all resize-none"
+                placeholder="반려 사유를 구체적으로 입력하세요&#13;&#10;(예: 해당 기간 중요 마감 일정 있음)"
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+              />
+            </div>
+
+            <div className="flex gap-2 p-6 pt-0">
+              <button onClick={() => setIsModalOpen(false)} className="flex-1 py-3 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200 transition-colors">취소</button>
+              <button onClick={handleRejectSubmit} className="flex-1 py-3 bg-red-500 text-white rounded-xl font-bold hover:bg-red-600 transition-colors flex items-center justify-center gap-2">
+                <X size={18} /> 반려 처리
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const StatusCard = ({ title, count, icon, color }) => (
+  <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-start gap-5 hover:shadow-md transition-shadow">
+    <div className={`text-3xl ${color || 'text-gray-300'}`}>{icon}</div>
+    <div>
+      <p className="text-3xl font-black text-gray-900 tracking-tighter mb-1">{count}</p>
+      <p className="text-sm font-medium text-gray-500">{title}</p>
+    </div>
+  </div>
+);
+
+const AdminNavItem = ({ icon, label, active, badge, isFolder, onClick }) => (
+  <div onClick={onClick} className={`flex items-center justify-between p-2.5 rounded-lg cursor-pointer transition-all duration-200 ${
+    active ? 'bg-blue-50 text-blue-700 font-bold shadow-sm' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'
+  }`}>
+    <div className="flex items-center gap-3">{icon} <span className="text-sm">{label}</span></div>
+    {badge && <span className="bg-red-500 text-white text-[9px] px-1.5 py-0.5 rounded-full font-black">{badge}</span>}
+    {isFolder && <span className="text-gray-300 text-[10px]">▼</span>}
+  </div>
+);
+
+export default LeaveApprovalPage;
