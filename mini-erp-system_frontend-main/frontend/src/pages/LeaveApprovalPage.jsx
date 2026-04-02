@@ -31,14 +31,26 @@ const LeaveApprovalPage = () => {
   const approvedCount = requests.filter(r => r.appStatus === 'APPROVED').length;
   const rejectedCount = requests.filter(r => r.appStatus === 'REJECTED').length;
 
+  const leaveTypeLabels = {
+    'ANNUAL': '연차',
+    'HALF_MORNING': '오전 반차',
+    'HALF_AFTERNOON': '오후 반차'
+  };
+
+  const statusLabels = {
+    'PENDING': '대기중',
+    'APPROVED': '승인완료',
+    'REJECTED': '반려'
+  };
+
   // 2. 승인 처리: 경로 수정
-  const handleApprove = async (id) => {
+  const handleApprove = async (appId) => {
     if (!window.confirm('승인하시겠습니까?')) return;
     try {
-      const response = await api.patch(`/leave/${id}/approve`);
+      const response = await api.patch(`/leave/${appId}/approve`);
       if (response.data.success) {
         setRequests(prev => prev.map(req => 
-          req.appId === id ? { ...req, appStatus: 'APPROVED' } : req
+          req.appId === appId ? { ...req, appStatus: 'APPROVED' } : req
         ));
         alert('승인되었습니다.');
       }
@@ -49,13 +61,13 @@ const LeaveApprovalPage = () => {
 
   // 3. 반려 처리: 경로 수정
   const handleRejectSubmit = async () => {
-    if (!rejectReason.trim()) return alert('사유를 입력하세요.');
+    if (!rejectReason.trim()) return alert('반려 사유를 입력하세요.');
     try {
-      const id = selectedRequest.appId;
-      const response = await api.patch(`/leave/${id}/reject`, { rejectReason });
+      const appId = selectedRequest.appId;
+      const response = await api.patch(`/leave/${appId}/reject`, { rejectReason: rejectReason});
       if (response.data.success) {
         setRequests(prev => prev.map(req => 
-          req.appId === id ? { ...req, appStatus: 'REJECTED', rejectReason } : req
+          req.appId === appId ? { ...req, appStatus: 'REJECTED', rejectReason } : req
         ));
         setIsModalOpen(false);
         setRejectReason('');
@@ -93,21 +105,27 @@ const LeaveApprovalPage = () => {
             <tr className="text-xs text-gray-400 font-bold uppercase">
               <th className="px-6 py-4">신청자</th>
               <th className="px-6 py-4">유형</th>
+              <th className="px-6 py-4">신청 기간</th>
+              <th className="px-6 py-4">사유</th>
+              <th className="px-6 py-4 text-center">신청일</th>
               <th className="px-6 py-4 text-center">상태</th>
-              <th className="px-6 py-4 text-center">관리</th>
+              <th className="px-6 py-4 text-center">결재</th>
             </tr>
           </thead>
           <tbody className="text-sm divide-y">
-            {requests.length > 0 ? requests.map((req) => (
+            {requests && requests.length > 0 ? (requests.map((req) => (
               <tr key={req.appId} className="hover:bg-gray-50/50">
                 <td className="px-6 py-4 font-bold text-gray-700">{req.requesterName}</td>
-                <td className="px-6 py-4 text-gray-500">{req.appType}</td>
+                <td className="px-6 py-4 text-gray-500">{leaveTypeLabels[req.appType] || req.appType}</td>
+                <td className="px-6 py-4 text-gray-500 font-medium">{req.startDate} ~ {req.endDate} ({req.usedDays}일)</td>
+                <td className="px-6 py-4 text-gray-500 italic">"{req.requestReason}"</td>
+                <td className="px-6 py-4 text-center text-gray-400">{req.createdAt?.split('T')[0]}</td>
                 <td className="px-6 py-4 text-center">
                   <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${
                     req.appStatus === 'APPROVED' ? 'bg-emerald-50 text-emerald-600' : 
                     req.appStatus === 'REJECTED' ? 'bg-red-50 text-red-600' : 'bg-orange-50 text-orange-600'
                   }`}>
-                    {req.appStatus}
+                    {statusLabels[req.appStatus] || req.appStatus}
                   </span>
                 </td>
                 <td className="px-6 py-4 text-center">
@@ -117,11 +135,13 @@ const LeaveApprovalPage = () => {
                       <button onClick={() => { setSelectedRequest(req); setIsModalOpen(true); }} className="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600">반려</button>
                     </div>
                   ) : (
-                    <span className="text-gray-400 text-xs">{req.appStatus === 'REJECTED' ? '반려 완료' : '결재 완료'}</span>
+                    <span className="text-gray-400 text-xs">{req.appStatus === 'REJECTED' ? `반려: ${req.rejectReason || '사유 없음'}` : '결재 완료'}
+                    </span>
                   )}
                 </td>
               </tr>
-            )) : (
+            ))
+          ) : (
               <tr><td colSpan="4" className="py-16 text-center text-gray-400">현재 대기 중인 연차 신청이 없습니다.</td></tr>
             )}
           </tbody>

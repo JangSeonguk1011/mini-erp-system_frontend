@@ -1,14 +1,24 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import api from '../../api/axios';
 
-const LeavePolicyTable = ({ positionName = "" }) => { // 기본값으로 '대리' 설정
-    const policies = [
-        { rank: '사원', days: '11일', note: '' },
-        { rank: '주임', days: '12일', note: '' },
-        { rank: '대리', days: '15일', note: '' },
-        { rank: '과장', days: '17일', note: '' },
-        { rank: '차장', days: '20일', note: '' },
-        { rank: '부장', days: '22일', note: '' },
-    ];
+const LeavePolicyTable = ({ position = "" }) => { 
+    const [policies, setPolicies] = useState([]);
+
+    useEffect(() => {
+        const fetchPolicy = async () => {
+            try {
+                // 백엔드: GET /api/v1/leave/policy
+                const response = await api.get('/leave/policy');
+                if (response.data.success) {
+                    // 백엔드 DTO: { position: "사원", annualLeaveDays: 15 }
+                    setPolicies(response.data.data);
+                }
+            } catch (error) {
+                console.error("연차 정책 로드 실패:", error);
+            }
+        };
+        fetchPolicy();
+    }, []);
 
     return (
         <div style={styles.container}>
@@ -22,12 +32,14 @@ const LeavePolicyTable = ({ positionName = "" }) => { // 기본값으로 '대리
                     </tr>
                 </thead>
                 <tbody>
-                    {policies.map((policy, index) => {
-                        const isMyRank = policy.rank === positionName;
+                    {[...policies]
+                        .sort((a, b) => b.annualLeaveDays - a.annualLeaveDays)
+                        .map((policy, index) => {
+                        const isMyRank = policy.position === position;
                         return (
                             <tr key={index} style={isMyRank ? styles.activeRow : styles.tr}>
-                                <td style={styles.td}>{policy.rank}</td>
-                                <td style={{...styles.td, fontWeight: 'bold'}}>{policy.days}</td>
+                                <td style={styles.td}>{policy.position}</td>
+                                <td style={{...styles.td, fontWeight: 'bold'}}>{policy.annualLeaveDays}일</td>
                                 <td style={styles.td}>
                                     <div style={{ display: 'flex', gap: '5px', alignItems: 'center', justifyContent: 'center' }}>
                                         {isMyRank && <span style={styles.currentBadge}>현재</span>}

@@ -5,7 +5,7 @@ import axios from 'axios';
  * baseURL에 /api/v1을 포함하여 모든 요청이 백엔드 API 경로를 기본으로 하도록 설정합니다.
  */
 const instance = axios.create({
-  baseURL: 'http://localhost:8080/api/v1', // 팀원이 알려준 API 기본 경로
+  baseURL: '/api/v1', // 팀원이 알려준 API 기본 경로
   timeout: 5000,
   headers: {
     'Content-Type': 'application/json',

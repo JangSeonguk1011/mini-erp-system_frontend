@@ -76,12 +76,12 @@ const UserDashboard = () => {
         <div className="px-6 py-4 mb-4 cursor-pointer" onClick={() => setIsProfileOpen(true)}>
           <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors">
             <div className="w-10 h-10 bg-blue-200 rounded-full flex items-center justify-center text-blue-700 font-bold shadow-sm">
-              {user?.userName?.charAt(0) || 'U'}
+              {user?.name?.charAt(0) || 'U'}
             </div>
             <div className="overflow-hidden">
-              <p className="text-sm font-bold text-gray-800 truncate">{user?.userName || '사용자'}</p>
+              <p className="text-sm font-bold text-gray-800 truncate">{user?.name || '사용자'}</p>
               <p className="text-xs text-gray-500 truncate">
-                {user?.department || '개발팀'} · {user?.positionName || '대리'}
+                {user?.department || '개발팀'} · {user?.position || '대리'}
               </p>
             </div>
           </div>
@@ -128,7 +128,7 @@ const DashboardHome = ({ user, setActiveMenu }) => (
       <div>
         <h1 className="text-2xl font-bold text-gray-800">대시보드</h1>
         <p className="text-gray-500 text-sm mt-1">
-          안녕하세요, <span className="font-semibold text-gray-700">{user?.userName}님!</span> 👋 
+          안녕하세요, <span className="font-semibold text-gray-700">{user?.name}님!</span> 👋 
           현재 <span className="text-blue-600 font-medium">5개</span>의 업무가 진행 대기 중입니다.
         </p>
       </div>
@@ -138,7 +138,7 @@ const DashboardHome = ({ user, setActiveMenu }) => (
           <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
         </button>
         <div className="w-10 h-10 bg-blue-800 text-white rounded-lg shadow-md flex items-center justify-center font-bold">
-          {user?.userName?.charAt(0) || '김'}
+          {user?.name?.charAt(0) || '김'}
         </div>
       </div>
     </header>

@@ -63,49 +63,31 @@ const LeaveApplyForm = ({ remainingBalance = 0, user }) => {
             return;
         }
 
+        const apiData = {
+        appType: formData.leaveType,      // ANNUAL, HALF_MORNING 등
+        startDate: formData.startDate,
+        endDate: formData.endDate,
+        requestReason: formData.reason || '개인 사유' 
+        };
+
         try {
-            const response = await api.get(`/leaves?userId=${user.userId}`);
-            const existingHistory = response.data;
-
-            // 중복 체크 
-            const newStart = new Date(formData.startDate);
-            const newEnd = new Date(formData.endDate);
-
-            const isOverlapped = existingHistory.some(item => {
-                if (item.status === 'REJECTED') return false;
-
-                const existStart = new Date(item.startDate);
-                const existEnd = new Date(item.endDate);
-                return newStart <= existEnd && newEnd >= existStart;
-            });
-
-            if (isOverlapped) {
-                alert("⚠️ 선택한 기간에 이미 신청된 연차가 있습니다.");
-                return;
+            const response = await api.post('/leave', apiData);
+            if (response.data.success) {
+                alert("✅ 연차 신청이 정상적으로 완료되었습니다.");
             }
-
-            const newRequest = {
-                userId: user.userId, 
-                userName: user.userName,
-                requestDate: new Date().toISOString().split('T')[0], 
-                leaveType: formData.leaveType,
-                startDate: formData.startDate,
-                endDate: formData.endDate,
-                usedDays: calculatedDays,
-                reason: formData.reason || '개인 사유',
-                status: 'PENDING' // 대기중 
-            };
-
-            // 2. json-server의 /leaves 엔드포인트로 POST 요청
-            await api.post('/leaves', newRequest);
-
-            alert("✅ 연차 신청이 정상적으로 완료되었습니다.");
-            
+            setFormData({
+                leaveType: 'ANNUAL',
+                startDate: '',
+                endDate: '',
+                reason: ''
+            });
             // ---------------------------------------
 
         } catch (err) {
             console.error("신청 중 에러 발생:", err); 
-            alert(`⚠️ 신청 처리 중 오류가 발생했습니다.`);
+            const serverErrorMessage = err.response?.data?.error?.message;
+            alert(`❌ 신청 실패: ${serverErrorMessage || "입력값이 올바르지 않습니다."}`);
+            
         }
     };
     // UI 렌더링 (기본 스타일 유지)
@@ -151,10 +133,10 @@ const LeaveApplyForm = ({ remainingBalance = 0, user }) => {
 
                 <button 
                     type="submit" 
-                    disabled={isBalanceExceeded || calculatedDays === 0}
+                    disabled={isBalanceExceeded}
                     style={{
                         ...styles.button, 
-                        backgroundColor: (isBalanceExceeded || calculatedDays === 0) ? '#ccc' : '#254EDB',
+                        backgroundColor: isBalanceExceeded ? '#ccc' : '#254EDB',
                         marginTop: calculatedDays > 0 ? '10px' : '20px'
                     }}
                 >

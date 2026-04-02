@@ -12,10 +12,13 @@ const LeaveHistoryPage = ({ onNavigateToApply }) => {
 
   useEffect(() => {
     const fetchHistory = async () => {
-      if (!user?.userId) return;
+      if (!user?.id) return;
       try {
-        const response = await api.get(`/leaves?userId=${user.userId}`);
-        setLeaveData(response.data);
+        const response = await api.get(`/leave/my`);
+
+        if (response.data.success) {
+        setLeaveData(response.data.data || []);
+        } 
       } catch (error) {
         console.error("내역 로딩 실패:", error);
       } finally {

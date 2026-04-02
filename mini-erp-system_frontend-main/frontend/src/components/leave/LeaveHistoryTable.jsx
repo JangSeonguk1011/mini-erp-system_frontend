@@ -2,6 +2,12 @@ import React, { useEffect, useState } from 'react';
 
 const LeaveHistoryTable = ({ historyData = [] }) => {
 
+    const leaveTypeLabels = {
+        'ANNUAL': '연차',
+        'HALF_MORNING': '오전 반차',
+        'HALF_AFTERNOON': '오후 반차',
+    };
+
     // 상태에 따른 배지 색상 결정 함수
     const getStatusStyle = (status) => {
         switch (status) {
@@ -13,12 +19,6 @@ const LeaveHistoryTable = ({ historyData = [] }) => {
             case 'REJECTED': return { bg: '#fdf2f2', color: '#e74c3c', text: '반려' };
             default: return { bg: '#f5f5f5', color: '#888', text: status };
         }
-    };
-
-    const leaveTypeLabels = {
-    'ANNUAL': '연차',
-    'HALF_MORNING': '오전 반차',
-    'HALF_AFTERNOON': '오후 반차'
     };
 
     const sortedHistory = [...historyData].reverse();
@@ -41,15 +41,15 @@ const LeaveHistoryTable = ({ historyData = [] }) => {
                 <tbody>
                     {sortedHistory.length > 0 ? (
                         sortedHistory.map((item) => {
-                            const statusInfo = getStatusStyle(item.status);
+                            const statusInfo = getStatusStyle(item.appStatus);
                             return (
-                                <tr key={item.id} style={styles.tr}>
-                                    <td style={styles.td}>{item.requestDate}</td>
-                                    <td style={styles.td}>{leaveTypeLabels[item.leaveType] || item.leaveType}</td>
+                                <tr key={item.appId} style={styles.tr}>
+                                    <td style={styles.td}>{item.createdAt?.split('T')[0] || '-'}</td>
+                                    <td style={styles.td}>{leaveTypeLabels[item.appType] || item.appType}</td>
                                     <td style={styles.td}>{item.startDate}</td>
                                     <td style={styles.td}>{item.endDate}</td>
                                     <td style={{...styles.td, fontWeight: 'bold'}}>{item.usedDays}일</td>
-                                    <td style={styles.td}>{item.reason}</td>
+                                    <td style={styles.td}>{item.requestReason}</td>
                                     <td style={styles.td}>
                                         <span style={{
                                             ...styles.badge,
@@ -58,6 +58,9 @@ const LeaveHistoryTable = ({ historyData = [] }) => {
                                         }}>
                                             {statusInfo.text}
                                         </span>
+                                    </td>
+                                    <td style={{ ...styles.td, fontSize: '12px' }}>
+                                    {item.appStatus === 'REJECTED' ? item.rejectReason : ''}
                                     </td>
                                 </tr>
                             );

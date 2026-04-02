@@ -5,9 +5,9 @@ const LeaveStatusCards = ({ leaveData = [] }) => {
 
     const stats = {
         total: leaveData.length,
-        approved: leaveData.filter(item => item.status === '승인' || item.status === 'APPROVED').length,
-        pending: leaveData.filter(item => item.status === '대기중' || item.status === 'PENDING').length,
-        rejected: leaveData.filter(item => item.status === '반려' || item.status === 'REJECTED').length
+        approved: leaveData.filter(item => item.appStatus === 'APPROVED').length,
+        pending: leaveData.filter(item => item.appStatus === 'PENDING').length,
+        rejected: leaveData.filter(item => item.appStatus === 'REJECTED').length
     };
 
     const cardData = [

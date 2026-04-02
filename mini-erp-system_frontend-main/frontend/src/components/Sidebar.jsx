@@ -66,10 +66,10 @@ const Sidebar = () => {
       {/* 2. 관리자 프로필 섹션 */}
       <div className="flex items-center gap-3 mb-10 px-2">
         <div className="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center text-white font-bold shadow-md border-2 border-white">
-          {user?.username?.charAt(0) || '관'}
+          {user?.name?.charAt(0) || '관'}
         </div>
         <div>
-          <p className="text-sm font-bold text-gray-800">{user?.userName || '관리자'}</p>
+          <p className="text-sm font-bold text-gray-800">{user?.name || '관리자'}</p>
           <div className="flex items-center gap-1">
             <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
             <p className="text-[11px] text-gray-400 font-medium">Online</p>
