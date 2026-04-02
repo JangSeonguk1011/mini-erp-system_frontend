@@ -14,6 +14,9 @@ import TaskEdit from './pages/TaskEdit';
 import ProjectManagement from './pages/ProjectManagement';
 import AdminProjectAuth from './pages/AdminProjectAuth';
 import ProjectPage from './pages/ProjectPage'; 
+import SignupPage from './pages/SignupPage';
+import FindIdPage from './pages/FindIdPage';
+import FindPwPage from './pages/FindPwPage';
 
 // 연차 관련 페이지 호출
 import LeaveHistoryPage from './pages/LeaveHistoryPage';   
@@ -89,6 +92,9 @@ function App() {
            3. 공통 영역 (로그인 및 리다이렉트) 
         ============================================================ */}
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/find-id" element={<FindIdPage />} />
+        <Route path="/find-pw" element={<FindPwPage />} />
         
         <Route 
           path="/" 
