@@ -49,17 +49,6 @@
   "leaves": [
     {
       "userId": "user01",
-      "requestDate": "2026-04-01",
-      "leaveType": "ANNUAL",
-      "startDate": "2026-04-03",
-      "endDate": "2026-04-03",
-      "usedDays": 1,
-      "reason": "개인 사유",
-      "status": "PENDING",
-      "id": "xv4E7s62Oto"
-    },
-    {
-      "userId": "user01",
       "userName": "장성욱",
       "requestDate": "2026-04-01",
       "leaveType": "HALF_MORNING",
