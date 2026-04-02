@@ -5,6 +5,7 @@ import { useAuthStore } from './store/authStore';
 // 레이아웃 및 공통 컴포넌트
 import AdminLayout from './components/AdminLayout';
 
+
 // 기존 페이지 호출
 import AdminDashboard from './pages/AdminDashboard';
 import UserDashboard from './pages/UserDashboard';
@@ -14,6 +15,9 @@ import TaskEdit from './pages/TaskEdit';
 import ProjectManagement from './pages/ProjectManagement';
 import AdminProjectAuth from './pages/AdminProjectAuth';
 import ProjectPage from './pages/ProjectPage'; 
+import SignupPage from './pages/SignupPage'; 
+import FindIdPage from './pages/FindIdPage';
+import FindPwPage from './pages/FindPwPage';
 
 // 연차 관련 페이지 호출
 import LeaveHistoryPage from './pages/LeaveHistoryPage';   
@@ -92,7 +96,7 @@ function App() {
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/find-id" element={<FindIdPage />} />
         <Route path="/find-pw" element={<FindPwPage />} />
-        
+
         <Route 
           path="/" 
           element={
