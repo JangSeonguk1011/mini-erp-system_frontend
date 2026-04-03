@@ -1,14 +1,17 @@
 // src/components/leave/LeaveStatusCards.jsx
 import React, { useEffect, useState } from 'react';
-// 04.03 수정 
+// 04.03 -2 수정 
 
-const LeaveStatusCards = ({ leaveData = [] }) => {
+const LeaveStatusCards = ({ leaveData = [], overtimeData = [] }) => {
 
     const stats = {
-        total: leaveData.length,
-        approved: leaveData.filter(item => item.appStatus === 'APPROVED').length,
-        pending: leaveData.filter(item => item.appStatus === 'PENDING').length,
-        rejected: leaveData.filter(item => item.appStatus === 'REJECTED').length
+        total: leaveData.length + overtimeData.length,
+        approved: leaveData.filter(item => item.appStatus === 'APPROVED').length + 
+                    overtimeData.filter(item => item.status === 'APPROVED').length,
+        pending: leaveData.filter(item => item.appStatus === 'PENDING').length +
+                    overtimeData.filter(item => item.status === 'PENDING').length,
+        rejected: leaveData.filter(item => item.appStatus === 'REJECTED').length +
+                    overtimeData.filter(item => item.status === 'REJECTED').length
     };
 
     const cardData = [

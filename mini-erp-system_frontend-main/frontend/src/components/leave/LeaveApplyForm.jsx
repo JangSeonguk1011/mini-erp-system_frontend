@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import api from '../../api/axios';
 import { useNavigate } from 'react-router-dom'; // 1. 네비게이트 추가
-// 04.03 수정 
+// 04.03 -2 수정 
 
 const LeaveApplyForm = ({ remainingBalance = 0, user }) => {
     const navigate = useNavigate(); // 2. 네비게이트 함수 선언
@@ -150,7 +150,7 @@ const LeaveApplyForm = ({ remainingBalance = 0, user }) => {
 
 // 스타일 객체 (기존과 동일)
 const styles = {
-    card: { backgroundColor: 'white', padding: '15px 25px 25px 25px', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', height: '100%', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', justifyContent: 'space-between'},
+    card: { backgroundColor: 'white', padding: '25px', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', height: '100%', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', justifyContent: 'space-between'},
     title: { fontSize: '18px', marginBottom: '20px', fontWeight: 'bold' },
     inputGroup: { marginBottom: '15px' },
     row: { display: 'flex', gap: '15px', marginBottom: '15px' },
@@ -158,8 +158,8 @@ const styles = {
     select: { width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd', outline: 'none' },
     input: { width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd', outline: 'none', boxSizing: 'border-box' },
     textarea: { width: '100%', height: '80px', padding: '10px', borderRadius: '6px', border: '1px solid #ddd', outline: 'none', resize: 'none', boxSizing: 'border-box' },
-    button: { width: '100%', padding: '14px', color: 'white', border: 'none', borderRadius: '6px', fontSize: '16px', fontWeight: 'bold', transition: '0.3s' },
-    previewBox: { backgroundColor: '#f0f4ff', padding: '15px 20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #d6e4ff' },
+    button: { width: '100%', padding: '14px', marginTop: '15px', color: 'white', border: 'none', borderRadius: '6px', fontSize: '16px', fontWeight: 'bold', transition: '0.3s' },
+    previewBox: { backgroundColor: '#f0f4ff', padding: '15px 20px', borderRadius: '8px', marginBottom: '0px', border: '1px solid #d6e4ff' },
     previewLabel: { display: 'block', fontSize: '12px', color: '#888', marginBottom: '5px' },
     previewContent: { display: 'flex', alignItems: 'center', gap: '10px', fontSize: '16px', color: '#333' },
     arrow: { color: '#aaa', fontWeight: 'bold' }

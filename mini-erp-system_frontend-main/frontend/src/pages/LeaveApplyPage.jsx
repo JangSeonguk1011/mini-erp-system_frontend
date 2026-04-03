@@ -3,9 +3,9 @@ import api from '../api/axios';
 import { useAuthStore } from '../store/authStore';
 import LeaveBalanceCard from '../components/leave/LeaveBalanceCard';
 import LeaveApplyForm from '../components/leave/LeaveApplyForm';
-import LeavePolicyTable from '../components/leave/LeavePolicyTable';
+import OvertimeApplyForm from '../components/overtime/OvertimeApplyForm';
 
-// 04.03 수정 
+// 04.03 - 2 수정 
 
 const LeaveApplyPage = () => {
   const { user } = useAuthStore(); // 현재 로그인한 사용자 정보
@@ -47,8 +47,8 @@ const LeaveApplyPage = () => {
       
       {/* 헤더 영역 */}
       <div style={{ textAlign: 'left' }}>
-        <h1 style={{ fontSize: '28px', fontWeight: 'bold', margin: 0 }}>✈️ 연차 신청</h1>
-        <p style={{ color: '#888', marginTop: '10px' }}>연차를 신청하고 잔여 현황을 확인하세요</p>
+        <h1 style={{ fontSize: '28px', fontWeight: 'bold', margin: 0 }}>연차/특근 신청</h1>
+        <p style={{ color: '#888', marginTop: '10px' }}>연차/특근을 신청하고 잔여 현황을 확인하세요</p>
       </div>
 
       {/* 1. 상단 카드 (잔여 연차 현황 표시) */}
@@ -59,19 +59,19 @@ const LeaveApplyPage = () => {
            usedAnnualLeave={leaveData.usedAnnualLeave} remainingAnnualLeave={leaveData.remainingAnnualLeave}/>
       </div>
 
-      {/* 2. 하단 2단 레이아웃 (신청 폼 + 정책 표) */}
+      {/* 2. 하단 2단 레이아웃 (신청 폼  */}
       <div style={{ display: 'flex', gap: '30px', width: '100%', alignItems: 'flex-start' }}>
-        {/* 왼쪽: 신청 폼 영역 (비중 1.6) */}
-        <div style={{ flex: 1.6 }}> 
+        {/* 왼쪽: 신청 폼 영역 (비중 1.5) */}
+        <div style={{ flex: 1 }}> 
           {/* 위에서 계산한 remainingBalance를 전달하여 
               신청서 하단에 '잔여 OO일'이 정확히 뜨게 합니다. */}
           <LeaveApplyForm remainingBalance={leaveData.remainingAnnualLeave}
             user={user} />
         </div>
 
-        {/* 오른쪽: 정책 안내 표 영역 (비중 1.4) */}
-        <div style={{ flex: 1.4 }}>
-          <LeavePolicyTable position={user?.position} />
+        {/* 오른쪽: 특근 신청 폼 영역 (비중 1.5) */}
+        <div style={{ flex: 1 }}>
+          <OvertimeApplyForm user={user} />
         </div>
       </div>
     </div>
