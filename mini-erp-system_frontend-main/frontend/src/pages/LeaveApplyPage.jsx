@@ -5,6 +5,8 @@ import LeaveBalanceCard from '../components/leave/LeaveBalanceCard';
 import LeaveApplyForm from '../components/leave/LeaveApplyForm';
 import LeavePolicyTable from '../components/leave/LeavePolicyTable';
 
+// 04.03 수정 
+
 const LeaveApplyPage = () => {
   const { user } = useAuthStore(); // 현재 로그인한 사용자 정보
   const [dbUser, setDbUser] = useState(null);

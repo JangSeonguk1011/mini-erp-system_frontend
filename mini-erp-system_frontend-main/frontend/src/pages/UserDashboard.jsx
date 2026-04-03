@@ -93,7 +93,8 @@ const UserDashboard = () => {
           <NavItem icon={<FileText size={18}/>} label="내 프로젝트/업무" active={activeMenu === 'projects'} onClick={() => setActiveMenu('projects')} />
           <NavItem icon={<Calendar size={18}/>} label="캘린더" active={activeMenu === 'calendar'} onClick={() => setActiveMenu('calendar')} />
           <NavItem icon={<Send size={18}/>} label="연차 신청" active={activeMenu === 'leave-apply'} onClick={() => setActiveMenu('leave-apply')} />
-          <NavItem icon={<ClipboardList size={18}/>} label="신청 내역" badge="2" active={activeMenu === 'leave-history'} onClick={() => setActiveMenu('leave-history')} />
+          <NavItem icon={<ClipboardList size={18}/>} label="신청 내역" active={activeMenu === 'leave-history'} onClick={() => setActiveMenu('leave-history')} />
+          {/* 수정: label="신청 내역 에 있던 badge 제거 */}
           <NavItem icon={<User size={18}/>} label="내 프로필" active={isProfileOpen} onClick={() => setIsProfileOpen(true)} />
         </nav>
 

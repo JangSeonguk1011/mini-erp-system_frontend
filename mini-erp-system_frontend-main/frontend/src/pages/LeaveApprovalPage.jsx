@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../api/axios'; 
 import { X } from 'lucide-react';
+// 04.03 수정 
 
 const LeaveApprovalPage = () => {
   const [requests, setRequests] = useState([]);

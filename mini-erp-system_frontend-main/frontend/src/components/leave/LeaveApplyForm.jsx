@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import api from '../../api/axios';
 import { useNavigate } from 'react-router-dom'; // 1. 네비게이트 추가
+// 04.03 수정 
 
 const LeaveApplyForm = ({ remainingBalance = 0, user }) => {
     const navigate = useNavigate(); // 2. 네비게이트 함수 선언

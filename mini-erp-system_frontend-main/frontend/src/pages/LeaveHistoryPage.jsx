@@ -3,6 +3,7 @@ import api from '../api/axios';
 import { useAuthStore } from '../store/authStore';
 import LeaveHistoryTable from '../components/leave/LeaveHistoryTable';
 import LeaveStatusCards from '../components/leave/LeaveStatusCards';
+// 04.03 수정 
 
 // [수정] 부모로부터 onNavigateToApply 함수를 받습니다.
 const LeaveHistoryPage = ({ onNavigateToApply }) => {

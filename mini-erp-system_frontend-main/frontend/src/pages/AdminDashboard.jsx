@@ -1,7 +1,39 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Bell } from 'lucide-react';
+import api from '@/api/axios';
+import { useNavigate } from 'react-router-dom'; //추가 
 
 const AdminDashboard = () => {
+
+  {/* ----------------------------------------수정(1)-------------------------------------------*/}
+  const [pendingLeaves, setPendingLeaves] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  const fetchPendingLeaves = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('/leave/all'); 
+      if (response.data.success) {
+        // PENDING 상태인 것만 필터링해서 상단 4~5개만 노출
+        const onlyPending = response.data.data
+          .filter(req => req.appStatus === 'PENDING')
+          .slice(0, 5); 
+        setPendingLeaves(onlyPending);
+      }
+    } catch (error) {
+      console.error("데이터 로드 실패:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPendingLeaves();
+  }, []);
+
+  {/* ----------------------------------------수정(1)끝-------------------------------------------*/}
+
   return (
     <div className="animate-fadeIn">
       {/* 헤더 섹션 */}
@@ -20,24 +52,40 @@ const AdminDashboard = () => {
       <div className="grid grid-cols-4 gap-6 mb-6">
         <AdminStatCard title="전체 사용자" count="24" change="+2 이번 달" />
         <AdminStatCard title="진행 중 프로젝트" count="8" change="총 12개 프로젝트" />
-        <AdminStatCard title="연차 승인 대기" count="4" change="즉시 처리 필요" color="red" />
+        <AdminStatCard title="연차 승인 대기" count={pendingLeaves.length} change="즉시 처리 필요" color="red" /> 
+        {/* ----------연차 승인 대기에 count 수정 ----------*/}
         <AdminStatCard title="전체 Task" count="127" change="완료율 68%" />
       </div>
 
       {/* 중간 섹션 */}
       <div className="grid grid-cols-12 gap-6 mb-6">
+        {/* ----------------------------------------수정(2)-------------------------------------------*/}
         <div className="col-span-7 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="p-4 border-b border-gray-50 flex justify-between items-center bg-gray-50/30">
             <h3 className="text-sm font-bold text-gray-700 flex items-center gap-2">🚩 연차 승인 대기</h3>
-            <button className="bg-blue-600 text-white text-[11px] px-6 py-1.5 rounded-lg font-bold hover:bg-blue-700 shadow-sm transition-colors">전체보기</button>
+            <button onClick={() => navigate('/admin/approvals')}
+            className="bg-blue-600 text-white text-[11px] px-6 py-1.5 rounded-lg font-bold hover:bg-blue-700 shadow-sm transition-colors">전체보기</button>
           </div>
           <div className="p-2 space-y-1">
-            <ApprovalItem name="김철수" type="연차 1일" date="04.01" reason="개인 용무" color="blue" />
-            <ApprovalItem name="이영희" type="연차 1일" date="04.13" reason="휴가" color="purple" />
-            <ApprovalItem name="박민준" type="오전반차" date="04.05" reason="병원 방문" color="orange" />
-            <ApprovalItem name="정수진" type="연속연차 2일" date="04.14-15" reason="가족 행사" color="emerald" />
+            {pendingLeaves.map((req) => {
+
+              const start = req.startDate?.substring(5) || "";
+              const end = req.endDate?.substring(5) || "";
+              const dateRange = start === end ? start : `${start} ~ ${end}`;
+
+              return (
+              <ApprovalItem 
+                key={req.appId}
+                requesterName={req.requesterName} 
+                type={req.appType}
+                date={dateRange}         
+                reason={req.requestReason}
+              />
+              );
+            })}
           </div>
         </div>
+        {/* ----------------------------------------수정(2)끝-------------------------------------------*/}
 
         <div className="col-span-5 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <h3 className="text-sm font-bold text-gray-700 mb-6 flex items-center gap-2">📊 프로젝트 현황</h3>
@@ -88,21 +136,37 @@ const AdminStatCard = ({ title, count, change, color }) => (
   </div>
 );
 
-const ApprovalItem = ({ name, type, date, reason, color }) => (
+{/* ----------------------------------------수정(3)-------------------------------------------*/}
+const ApprovalItem = ({ requesterName, type, date, reason }) => {
+  const typeLabels = {
+    'ANNUAL': '연차',
+    'HALF_MORNING': '오전 반차',
+    'HALF_AFTERNOON': '오후 반차'
+  };
+
+  const getFixedColor = (name) => {
+    if (!name) return 'bg-emerald-500';
+    const colors = ['bg-blue-500', 'bg-purple-500', 'bg-orange-500', 'bg-emerald-500'];
+
+    const charSum = name.length + name.charCodeAt(0) + name.charCodeAt(name.length - 1);
+    const index = charSum % colors.length;
+    return colors[index];
+  }
+
+  const bgColor = getFixedColor(requesterName);
+
+  return (
   <div className="flex items-center gap-4 p-3 hover:bg-gray-50 rounded-lg transition-colors group">
-    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-bold shadow-sm ${
-      color === 'blue' ? 'bg-blue-500' : color === 'purple' ? 'bg-purple-500' : color === 'orange' ? 'bg-orange-500' : 'bg-emerald-500'
-    }`}>{name.charAt(0)}</div>
+    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-bold shadow-sm 
+    ${bgColor}`}>{requesterName.charAt(0)}</div>
     <div className="flex-1">
-      <p className="text-xs font-bold text-gray-700">{name} · <span className="font-normal text-gray-500">{type}</span></p>
+      <p className="text-xs font-bold text-gray-700">{requesterName} · <span className="font-normal text-gray-500">{typeLabels[type] || type}</span></p>
       <p className="text-[10px] text-gray-400">{date} · {reason}</p>
-    </div>
-    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-      <button className="px-3 py-1 bg-emerald-500 text-white text-[10px] rounded font-bold hover:bg-emerald-600 shadow-sm">승인</button>
-      <button className="px-3 py-1 bg-red-500 text-white text-[10px] rounded font-bold hover:bg-red-600 shadow-sm">반려</button>
     </div>
   </div>
 );
+};
+{/* ----------------------------------------수정(3)끝-------------------------------------------*/}
 
 const ProgressItem = ({ label, percent, date, color, status }) => (
   <div>

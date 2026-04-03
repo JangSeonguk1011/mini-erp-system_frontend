@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../api/axios';
+// 04.03 수정 
 
 const LeavePolicyTable = ({ position = "" }) => { 
     const [policies, setPolicies] = useState([]);
