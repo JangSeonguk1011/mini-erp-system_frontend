@@ -1,0 +1,73 @@
+# Dependency Directories
+node_modules/
+jspm_packages/
+mini-erp-system_frontend-main/node_modules/
+
+# Build Outputs
+dist/
+build/
+.cache/
+
+# Environment Variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# Data & Database
+data/*.csv
+data/*.json
+*.db
+*.sqlite3
+!data/README.md
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Selenium & Drivers
+chromedriver.exe
+geckodriver.exe
